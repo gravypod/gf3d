@@ -9,6 +9,8 @@
 #include "gf3d_camera.h"
 #include "gf3d_vector.h"
 #include "gf3d_texture.h"
+#include "entity/manager.h"
+#include "entity/definitions/agumon.h"
 
 int main(int argc,char *argv[])
 {
@@ -29,28 +31,33 @@ int main(int argc,char *argv[])
         0,                      //fullscreen
         1                       //validation
     );
+
+    entity_manager_init();
     
     // main game loop
     slog("gf3d main loop begin");
-    model = gf3d_model_load("agumon");
-    model2 = gf3d_model_load("cube");
+
+    entity_t *agumon = entity_manager_make(entity_agumon_init, NULL);
+
     while(!done)
     {
         SDL_PumpEvents();   // update SDL's internal event structures
         keys = SDL_GetKeyboardState(NULL); // get the keyboard state for this frame
         //update game things here
-        
-        gf3d_vgraphics_rotate_camera(0.001);
+
+        entity_manager_update();
+        //gf3d_vgraphics_rotate_camera(0.001);
         
         // configure render command for graphics command pool
         // for each mesh, get a command and configure it from the pool
         bufferFrame = gf3d_vgraphics_render_begin();
-        commandBuffer = gf3d_command_rendering_begin(bufferFrame);
-
-            gf3d_model_draw(model,bufferFrame,commandBuffer);
-            gf3d_model_draw(model2,bufferFrame,commandBuffer);
-            
-        gf3d_command_rendering_end(commandBuffer);
+        {
+            commandBuffer = gf3d_command_rendering_begin(bufferFrame);
+            {
+                entity_manager_draw(bufferFrame, commandBuffer);
+            }
+            gf3d_command_rendering_end(commandBuffer);
+        }
         gf3d_vgraphics_render_end(bufferFrame);
 
         if (keys[SDL_SCANCODE_ESCAPE])done = 1; // exit condition
