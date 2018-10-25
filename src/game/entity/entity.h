@@ -21,7 +21,7 @@ typedef struct entity_struct
     /**
      * Unique ID for every entity
      */
-    size_t id;
+    uint32_t id;
 
     Vector3D position;
     Vector3D scale;

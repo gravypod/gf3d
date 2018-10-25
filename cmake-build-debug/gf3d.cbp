@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6"/>
+	<Project>
+		<Option title="gf3d"/>
+		<Option makefile_is_custom="1"/>
+		<Option compiler="gcc"/>
+		<Option virtualFolders="CMake Files\;"/>
+		<Build>
+			<Target title="all">
+				<Option working_dir="/home/gravypod/Documents/gf3d/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j8 -f &quot;/home/gravypod/Documents/gf3d/cmake-build-debug/Makefile&quot;  VERBOSE=1 all"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/home/gravypod/Documents/gf3d/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/home/gravypod/Documents/gf3d/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/home/gravypod/Documents/gf3d/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="rebuild_cache">
+				<Option working_dir="/home/gravypod/Documents/gf3d/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j8 -f &quot;/home/gravypod/Documents/gf3d/cmake-build-debug/Makefile&quot;  VERBOSE=1 rebuild_cache"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/home/gravypod/Documents/gf3d/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/home/gravypod/Documents/gf3d/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/home/gravypod/Documents/gf3d/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="edit_cache">
+				<Option working_dir="/home/gravypod/Documents/gf3d/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j8 -f &quot;/home/gravypod/Documents/gf3d/cmake-build-debug/Makefile&quot;  VERBOSE=1 edit_cache"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/home/gravypod/Documents/gf3d/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/home/gravypod/Documents/gf3d/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/home/gravypod/Documents/gf3d/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="gf3d">
+				<Option output="/home/gravypod/Documents/gf3d/cmake-build-debug/gf3d" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/gravypod/Documents/gf3d/cmake-build-debug"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/home/gravypod/Documents/gf3d/include"/>
+					<Add directory="/home/gravypod/Documents/gf3d/libs/include"/>
+					<Add directory="/usr/include/SDL2"/>
+					<Add directory="/usr/include/c++/7"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/c++/7"/>
+					<Add directory="/usr/include/c++/7/backward"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/7/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/7/include-fixed"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j8 -f &quot;/home/gravypod/Documents/gf3d/cmake-build-debug/Makefile&quot;  VERBOSE=1 gf3d"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/home/gravypod/Documents/gf3d/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/home/gravypod/Documents/gf3d/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/home/gravypod/Documents/gf3d/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="gf3d/fast">
+				<Option output="/home/gravypod/Documents/gf3d/cmake-build-debug/gf3d" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/gravypod/Documents/gf3d/cmake-build-debug"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/home/gravypod/Documents/gf3d/include"/>
+					<Add directory="/home/gravypod/Documents/gf3d/libs/include"/>
+					<Add directory="/usr/include/SDL2"/>
+					<Add directory="/usr/include/c++/7"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/c++/7"/>
+					<Add directory="/usr/include/c++/7/backward"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/7/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/7/include-fixed"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j8 -f &quot;/home/gravypod/Documents/gf3d/cmake-build-debug/Makefile&quot;  VERBOSE=1 gf3d/fast"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/home/gravypod/Documents/gf3d/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/home/gravypod/Documents/gf3d/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/home/gravypod/Documents/gf3d/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+		</Build>
+		<Unit filename="/home/gravypod/Documents/gf3d/include/gf3d_uniforms.h">
+			<Option target="gf3d"/>
+		</Unit>
+		<Unit filename="/home/gravypod/Documents/gf3d/src/game/entity/definitions/agumon.c">
+			<Option target="gf3d"/>
+		</Unit>
+		<Unit filename="/home/gravypod/Documents/gf3d/src/game/entity/definitions/agumon.h">
+			<Option target="gf3d"/>
+		</Unit>
+		<Unit filename="/home/gravypod/Documents/gf3d/src/game/entity/entity.c">
+			<Option target="gf3d"/>
+		</Unit>
+		<Unit filename="/home/gravypod/Documents/gf3d/src/game/entity/entity.h">
+			<Option target="gf3d"/>
+		</Unit>
+		<Unit filename="/home/gravypod/Documents/gf3d/src/game/entity/manager.c">
+			<Option target="gf3d"/>
+		</Unit>
+		<Unit filename="/home/gravypod/Documents/gf3d/src/game/entity/manager.h">
+			<Option target="gf3d"/>
+		</Unit>
+		<Unit filename="/home/gravypod/Documents/gf3d/src/game/game.c">
+			<Option target="gf3d"/>
+		</Unit>
+		<Unit filename="/home/gravypod/Documents/gf3d/src/gf3d_camera.c">
+			<Option target="gf3d"/>
+		</Unit>
+		<Unit filename="/home/gravypod/Documents/gf3d/src/gf3d_commands.c">
+			<Option target="gf3d"/>
+		</Unit>
+		<Unit filename="/home/gravypod/Documents/gf3d/src/gf3d_extensions.c">
+			<Option target="gf3d"/>
+		</Unit>
+		<Unit filename="/home/gravypod/Documents/gf3d/src/gf3d_matrix.c">
+			<Option target="gf3d"/>
+		</Unit>
+		<Unit filename="/home/gravypod/Documents/gf3d/src/gf3d_mesh.c">
+			<Option target="gf3d"/>
+		</Unit>
+		<Unit filename="/home/gravypod/Documents/gf3d/src/gf3d_model.c">
+			<Option target="gf3d"/>
+		</Unit>
+		<Unit filename="/home/gravypod/Documents/gf3d/src/gf3d_obj_load.c">
+			<Option target="gf3d"/>
+		</Unit>
+		<Unit filename="/home/gravypod/Documents/gf3d/src/gf3d_pipeline.c">
+			<Option target="gf3d"/>
+		</Unit>
+		<Unit filename="/home/gravypod/Documents/gf3d/src/gf3d_shaders.c">
+			<Option target="gf3d"/>
+		</Unit>
+		<Unit filename="/home/gravypod/Documents/gf3d/src/gf3d_swapchain.c">
+			<Option target="gf3d"/>
+		</Unit>
+		<Unit filename="/home/gravypod/Documents/gf3d/src/gf3d_texture.c">
+			<Option target="gf3d"/>
+		</Unit>
+		<Unit filename="/home/gravypod/Documents/gf3d/src/gf3d_types.c">
+			<Option target="gf3d"/>
+		</Unit>
+		<Unit filename="/home/gravypod/Documents/gf3d/src/gf3d_uniforms.c">
+			<Option target="gf3d"/>
+		</Unit>
+		<Unit filename="/home/gravypod/Documents/gf3d/src/gf3d_validation.c">
+			<Option target="gf3d"/>
+		</Unit>
+		<Unit filename="/home/gravypod/Documents/gf3d/src/gf3d_vector.c">
+			<Option target="gf3d"/>
+		</Unit>
+		<Unit filename="/home/gravypod/Documents/gf3d/src/gf3d_vgraphics.c">
+			<Option target="gf3d"/>
+		</Unit>
+		<Unit filename="/home/gravypod/Documents/gf3d/src/gf3d_vqueues.c">
+			<Option target="gf3d"/>
+		</Unit>
+		<Unit filename="/home/gravypod/Documents/gf3d/src/simple_logger.c">
+			<Option target="gf3d"/>
+		</Unit>
+		<Unit filename="/home/gravypod/Documents/gf3d/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\"/>
+		</Unit>
+	</Project>
+</CodeBlocks_project_file>

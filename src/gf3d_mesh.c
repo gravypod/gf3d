@@ -6,6 +6,7 @@
 #include "gf3d_commands.h"
 
 #include <stddef.h>
+#include <gf3d_uniforms.h>
 
 #define ATTRIBUTE_COUNT 3
 
@@ -167,7 +168,7 @@ void gf3d_mesh_scene_add(Mesh *mesh)
     if (!mesh)return;
 }
 
-void gf3d_mesh_render(Mesh *mesh,VkCommandBuffer commandBuffer, VkDescriptorSet * descriptorSet)
+void gf3d_mesh_render(Mesh *mesh, Uint32 frame, Uint32 entity_number, VkCommandBuffer commandBuffer, VkDescriptorSet * descriptorSet)
 {
     VkDeviceSize offsets[] = {0};
     Pipeline *pipe;
@@ -180,8 +181,10 @@ void gf3d_mesh_render(Mesh *mesh,VkCommandBuffer commandBuffer, VkDescriptorSet 
     vkCmdBindVertexBuffers(commandBuffer, 0, 1, &mesh->buffer, offsets);
     
     vkCmdBindIndexBuffer(commandBuffer, mesh->faceBuffer, 0, VK_INDEX_TYPE_UINT32);
-    
-    vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipe->pipelineLayout, 0, 1, descriptorSet, 0, NULL);
+
+    uint32_t dynamic_offsets = gf3d_uniforms_buffer_object_size() * gf3d_uniforms_buffer_offset_index_get(frame, entity_number);
+
+    vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipe->pipelineLayout, 0, 1, descriptorSet, 1, &dynamic_offsets);
     
     vkCmdDrawIndexed(commandBuffer, mesh->faceCount * 3, 1, 0, 0, 0);
 }

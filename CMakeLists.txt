@@ -32,7 +32,7 @@ set(SOURCE_FILES
         src/gf3d_vector.c
         src/gf3d_vgraphics.c
         src/gf3d_vqueues.c
-        src/simple_logger.c)
+        src/simple_logger.c src/gf3d_uniforms.c include/gf3d_uniforms.h)
 
 include_directories(include libs/include ${SDL2_INCLUDE_DIRS} ${SDL2IMAGE_INCLUDE_DIRS})
 add_executable(${PROJECT_NAME} ${SOURCE_FILES} ${GAME_SOURCE_FILES})

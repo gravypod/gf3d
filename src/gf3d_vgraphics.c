@@ -8,6 +8,7 @@
 #include <limits.h>
 #include <string.h>
 #include <stdio.h>
+#include <gf3d_uniforms.h>
 
 #include "gf3d_vector.h"
 #include "gf3d_types.h"
@@ -23,6 +24,7 @@
 #include "gf3d_matrix.h"
 
 #include "simple_logger.h"
+#include "game/entity/manager.h"
 
 typedef struct
 {
@@ -61,10 +63,7 @@ typedef struct
         
     Pipeline                   *pipe;
     
-    VkBuffer                   *uniformBuffers;
-    VkDeviceMemory             *uniformBuffersMemory;
-    Uint32                      uniformBufferCount;
-    Command                 *   graphicsCommandPool; 
+    Command                 *   graphicsCommandPool;
     UniformBufferObject         ubo;
 }vGraphics;
 
@@ -81,9 +80,7 @@ void gf3d_vgraphics_semaphores_create();
 VkPhysicalDevice gf3d_vgraphics_select_device();
 VkDeviceCreateInfo gf3d_vgraphics_get_device_info(Bool enableValidationLayers);
 
-void gf3d_vgraphics_create_uniform_buffer();
 void gf3d_vgraphics_debug_close();
-void gf3d_vgraphics_update_uniform_buffer(uint32_t currentImage);
 void DestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT callback, const VkAllocationCallbacks* pAllocator);
 
 void gf3d_vgraphics_setup(
@@ -148,8 +145,8 @@ void gf3d_vgraphics_init(
 
     gf3d_vgraphics.pipe = gf3d_pipeline_graphics_load(device,"shaders/vert.spv","shaders/frag.spv",gf3d_vgraphics_get_view_extent());
 
-    gf3d_vgraphics_create_uniform_buffer();
-    
+    gf3d_uniforms_init(gf3d_swapchain_get_swap_image_count(), MAX_NUM_ENTITIES);
+
     gf3d_command_system_init(8,device);
 
     gf3d_vgraphics.graphicsCommandPool = gf3d_command_graphics_pool_setup(gf3d_swapchain_get_swap_image_count(),gf3d_vgraphics.pipe);
@@ -321,43 +318,12 @@ void gf3d_vgraphics_setup(
     
 }
 
-VkBuffer gf3d_vgraphics_get_uniform_buffer_by_index(Uint32 index)
-{
-    if (index >= gf3d_vgraphics.uniformBufferCount)
-    {
-        slog("request for uniform buffer index %i is out of range",index);
-        return VK_NULL_HANDLE;
-    }
-    return gf3d_vgraphics.uniformBuffers[index];
-}
-
-void gf3d_vgraphics_create_uniform_buffer()
-{
-    int i;
-    Uint32 buffercount = gf3d_swapchain_get_swap_image_count();
-    VkDeviceSize bufferSize = sizeof(UniformBufferObject);
-
-    gf3d_vgraphics.uniformBuffers = (VkBuffer*)gf3d_allocate_array(sizeof(VkBuffer),buffercount);
-    gf3d_vgraphics.uniformBuffersMemory = (VkDeviceMemory*)gf3d_allocate_array(sizeof(VkDeviceMemory),buffercount);
-    gf3d_vgraphics.uniformBufferCount = buffercount;
-
-    for (i = 0; i < buffercount; i++)
-    {
-        gf3d_vgraphics_create_buffer(bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &gf3d_vgraphics.uniformBuffers[i], &gf3d_vgraphics.uniformBuffersMemory[i]);
-    }
-}
-
 void gf3d_vgraphics_close()
 {
     int i;
     slog("cleaning up vulkan graphics");
     
-    for (i = 0; i < gf3d_vgraphics.uniformBufferCount; i++)
-    {
-        vkDestroyBuffer(gf3d_vgraphics.device, gf3d_vgraphics.uniformBuffers[i], NULL);
-        vkFreeMemory(gf3d_vgraphics.device, gf3d_vgraphics.uniformBuffersMemory[i], NULL);
-    }
-    
+    gf3d_uniforms_free();
     
     if (gf3d_vgraphics.logicalDeviceCreated)
     {
@@ -471,8 +437,6 @@ void gf3d_vgraphics_render_end(Uint32 imageIndex)
     VkSemaphore signalSemaphores[] = {gf3d_vgraphics.renderFinishedSemaphore};
     VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
     swapChains[0] = gf3d_swapchain_get();
-
-    gf3d_vgraphics_update_uniform_buffer(imageIndex);
 
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 
@@ -694,16 +658,6 @@ uint32_t gf3d_vgraphics_find_memory_type(uint32_t typeFilter, VkMemoryPropertyFl
 
     slog("failed to find suitable memory type!");
     return 0;
-}
-
-void gf3d_vgraphics_update_uniform_buffer(uint32_t currentImage)
-{
-    void* data;
-    vkMapMemory(gf3d_vgraphics.device, gf3d_vgraphics.uniformBuffersMemory[currentImage], 0, sizeof(UniformBufferObject), 0, &data);
-    
-        memcpy(data, &gf3d_vgraphics.ubo, sizeof(UniformBufferObject));
-
-    vkUnmapMemory(gf3d_vgraphics.device, gf3d_vgraphics.uniformBuffersMemory[currentImage]);
 }
 
 void gf3d_vgraphics_rotate_camera(float degrees)

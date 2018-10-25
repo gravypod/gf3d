@@ -44,8 +44,6 @@ uint32_t gf3d_vgraphics_find_memory_type(uint32_t typeFilter, VkMemoryPropertyFl
 
 void gf3d_vgraphics_rotate_camera(float degrees);
 
-VkBuffer gf3d_vgraphics_get_uniform_buffer_by_index(Uint32 index);
-
 Pipeline *gf3d_vgraphics_get_graphics_pipeline();
 
 Command *gf3d_vgraphics_get_graphics_command_pool();
