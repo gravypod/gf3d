@@ -5,9 +5,7 @@
 #include "gf3d_pipeline.h"
 #include "gf3d_swapchain.h"
 #include "gf3d_model.h"
-#include "gf3d_matrix.h"
 #include "gf3d_camera.h"
-#include "gf3d_vector.h"
 #include "gf3d_texture.h"
 #include "entity/manager.h"
 #include "entity/definitions/agumon.h"
@@ -20,6 +18,10 @@ int main(int argc,char *argv[])
     VkCommandBuffer commandBuffer;
     Model *model;
     Model *model2;
+
+    vec4 background_color = {
+            0.51, 0.75, 1, 1
+    };
     
     init_logger("gf3d.log");    
     slog("gf3d begin");
@@ -27,7 +29,7 @@ int main(int argc,char *argv[])
         "gf3d",                 //program name
         1200,                   //screen width
         700,                    //screen height
-        vector4d(0.51,0.75,1,1),//background color
+        background_color,       //background color
         0,                      //fullscreen
         1                       //validation
     );
@@ -37,10 +39,24 @@ int main(int argc,char *argv[])
     // main game loop
     slog("gf3d main loop begin");
 
-    entity_t *agumon = entity_manager_make(entity_agumon_init, NULL);
+    entity_t *agumon1 = entity_manager_make(entity_agumon_init, NULL);
+    entity_t *agumon2 = entity_manager_make(entity_agumon_init, NULL);
+
+    agumon2->position[0] -= 6.0f;
+
+    agumon1->scale[0] = 0.5f;
+    agumon1->scale[1] = 0.5f;
+    agumon1->scale[2] = 0.5f;
+    //agumon2->position.y -= 1;
+    //agumon2->position.z -= 1;
 
     while(!done)
     {
+        agumon1->rotation[2] += 0.001f;
+        agumon2->rotation[2] -= 0.003f;
+
+        agumon1->rotation[1] += 0.001f;
+        agumon2->rotation[1] -= 0.003f;
         SDL_PumpEvents();   // update SDL's internal event structures
         keys = SDL_GetKeyboardState(NULL); // get the keyboard state for this frame
         //update game things here

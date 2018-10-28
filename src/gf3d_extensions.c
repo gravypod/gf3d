@@ -1,5 +1,4 @@
 #include "gf3d_extensions.h"
-#include "gf3d_vector.h"
 
 #include "simple_logger.h"
 

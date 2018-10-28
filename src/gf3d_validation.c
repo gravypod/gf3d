@@ -2,7 +2,6 @@
 
 #include "gf3d_validation.h"
 #include "gf3d_types.h"
-#include "gf3d_vector.h"
 
 #include <string.h>
 #include <stdio.h>

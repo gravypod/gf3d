@@ -1,10 +1,12 @@
 #ifndef ENGINE_ENTITY_ENTITY_H
 #define ENGINE_ENTITY_ENTITY_H
 
+#include <linmath.h>
 #include <stddef.h>
 #include <stdbool.h>
 #include <SDL_quit.h>
 #include <vulkan/vulkan.h>
+#include <gf3d_uniforms.h>
 #include "gf3d_model.h"
 
 typedef struct
@@ -23,11 +25,12 @@ typedef struct entity_struct
      */
     size_t id;
 
-    Vector3D position;
-    Vector3D scale;
-    Vector3D rotation;
+    vec3 position;
+    vec3 scale;
+    vec3 rotation;
 
     Model *model;
+    UniformBufferObject *ubo;
 
     /**
      * If this entity is already being used by something

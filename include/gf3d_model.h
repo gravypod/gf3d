@@ -23,8 +23,6 @@
 */
 
 #include "gf3d_types.h"
-#include "gf3d_vector.h"
-#include "gf3d_matrix.h"
 #include "gf3d_text.h"
 #include "gf3d_texture.h"
 #include "gf3d_mesh.h"
@@ -48,7 +46,7 @@ VkDescriptorSetLayout * gf3d_model_get_descriptor_set_layout();
 
 Model * gf3d_model_load(char * filename);
 Model * gf3d_model_new();
-void gf3d_model_draw(Model *model,Uint32 bufferFrame,VkCommandBuffer commandBuffer);
+void gf3d_model_draw(uint32_t entity_id, uint32_t swap_chain_image_id, Model *model,Uint32 bufferFrame,VkCommandBuffer commandBuffer);
 void gf3d_model_free(Model *model);
 
 

@@ -5,11 +5,11 @@
 
 typedef struct
 {    
-    Vector3D *vertices;
+    vec3 *vertices;
     Uint32 vertex_count;
-    Vector3D *normals;
+    vec3 *normals;
     Uint32 normal_count;
-    Vector2D *texels;
+    vec2 *texels;
     Uint32 texel_count;
     
     Face *faceVerts;

@@ -167,7 +167,7 @@ void gf3d_mesh_scene_add(Mesh *mesh)
     if (!mesh)return;
 }
 
-void gf3d_mesh_render(Mesh *mesh,VkCommandBuffer commandBuffer, VkDescriptorSet * descriptorSet)
+void gf3d_mesh_render(uint32_t entity_id, uint32_t swap_chain_image_id, Mesh *mesh,VkCommandBuffer commandBuffer, VkDescriptorSet * descriptorSet)
 {
     VkDeviceSize offsets[] = {0};
     Pipeline *pipe;
@@ -180,8 +180,11 @@ void gf3d_mesh_render(Mesh *mesh,VkCommandBuffer commandBuffer, VkDescriptorSet 
     vkCmdBindVertexBuffers(commandBuffer, 0, 1, &mesh->buffer, offsets);
     
     vkCmdBindIndexBuffer(commandBuffer, mesh->faceBuffer, 0, VK_INDEX_TYPE_UINT32);
-    
-    vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipe->pipelineLayout, 0, 1, descriptorSet, 0, NULL);
+
+    gf3d_ubo_manager *const ubo_manger = gf3d_vgraphics_get_uniform_buffer_manager();
+    uint32_t dynamic_offsets = gf3d_uniforms_reference_offset_get(ubo_manger, entity_id, swap_chain_image_id);
+
+    vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipe->pipelineLayout, 0, 1, descriptorSet, 1, &dynamic_offsets);
     
     vkCmdDrawIndexed(commandBuffer, mesh->faceCount * 3, 1, 0, 0, 0);
 }

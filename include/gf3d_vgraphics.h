@@ -2,11 +2,11 @@
 #define __GF3D_VGRAPHICS_H__
 
 #include <vulkan/vulkan.h>
+#include <linmath.h>
 
-#include "gf3d_vector.h"
-#include "gf3d_matrix.h"
 #include "gf3d_pipeline.h"
 #include "gf3d_commands.h"
+#include "gf3d_uniforms.h"
 
 #define GF3D_VGRAPHICS_DISCRETE 1   //Choosing whether to use discrete [1] or integrated graphics [0]
 
@@ -17,7 +17,7 @@ void gf3d_vgraphics_init(
     char *windowName,
     int renderWidth,
     int renderHeight,
-    Vector4D bgcolor,
+    vec4 bgcolor,
     Bool fullscreen,
     Bool enableValidation
 );
@@ -42,9 +42,9 @@ void gf3d_vgraphics_copy_buffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDevice
 
 uint32_t gf3d_vgraphics_find_memory_type(uint32_t typeFilter, VkMemoryPropertyFlags properties);
 
-void gf3d_vgraphics_rotate_camera(float degrees);
-
-VkBuffer gf3d_vgraphics_get_uniform_buffer_by_index(Uint32 index);
+gf3d_ubo_manager *gf3d_vgraphics_get_uniform_buffer_manager();
+VkBuffer gf3d_vgraphics_get_dynamic_uniform_buffer();
+VkDeviceSize gf3d_vgraphics_get_dynamic_uniform_buffer_size();
 
 Pipeline *gf3d_vgraphics_get_graphics_pipeline();
 

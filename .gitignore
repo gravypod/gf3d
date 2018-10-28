@@ -53,3 +53,7 @@ dkms.conf
 makefile.dep
 gf3d
 *.log
+
+
+.idea
+cmake-build-debug

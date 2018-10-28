@@ -1,5 +1,4 @@
 #include "gf3d_vqueues.h"
-#include "gf3d_vector.h"
 #include "simple_logger.h"
 
 #include <stdio.h>
@@ -202,11 +201,11 @@ void gf3d_vqueues_close()
     slog("cleaning up vulkan queues");
     if (gf3d_vqueues.queue_create_info)
     {
-//        free(gf3d_vqueues.queue_create_info);
+        free(gf3d_vqueues.queue_create_info);
     }
     if (gf3d_vqueues.queue_properties)
     {
-//        free(gf3d_vqueues.queue_properties);
+        free(gf3d_vqueues.queue_properties);
     }
     memset(&gf3d_vqueues,0,sizeof(vQueues));
 }

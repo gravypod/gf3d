@@ -5,7 +5,6 @@ struct
 {
 	size_t freed_entities;
 
-	size_t next_entity_id;
 	size_t num_entities;
 	size_t next_allocation_index;
 	entity_t *entities;
@@ -16,11 +15,13 @@ bool entity_manager_init()
 {
 	entity_pool.freed_entities = 0;
 
-	entity_pool.next_entity_id = 0;
 	entity_pool.num_entities = MAX_NUM_ENTITIES;
 	entity_pool.next_allocation_index = 0;
 	entity_pool.entities = calloc(sizeof(entity_t), MAX_NUM_ENTITIES);
 
+	for (size_t i = 0; i < entity_pool.num_entities; i++) {
+		entity_pool.entities[i].id = i;
+	}
 
 	// Pre-allocate null entities
 	entity_manager_for_each(entity_init_empty, NULL, false);
@@ -61,7 +62,6 @@ entity_t *entity_manager_take(entity_initializer_t initializer, void *metadata)
 		entity = &entity_pool.entities[entity_pool.next_allocation_index++];
 	}
 
-	entity->id = entity_pool.next_entity_id++;
 	entity->allocated = true;
 
 	// Call initializer

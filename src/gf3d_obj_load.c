@@ -66,10 +66,11 @@ void gf3d_obj_load_reorg(ObjData *obj)
             vertexIndex = obj->faceVerts[i].verts[f];
             normalIndex = obj->faceNormals[i].verts[f];
             texelIndex = obj->faceTexels[i].verts[f];
-            
-            vector3d_copy(obj->faceVertices[vert].vertex,obj->vertices[vertexIndex]);
-            vector3d_copy(obj->faceVertices[vert].normal,obj->normals[normalIndex]);
-            vector2d_copy(obj->faceVertices[vert].texel,obj->texels[texelIndex]);
+
+            // TODO: Validate this is the correct order for the copy
+            memcpy(obj->faceVertices[vert].vertex,obj->vertices[vertexIndex], sizeof(vec3));
+            memcpy(obj->faceVertices[vert].normal,obj->normals[normalIndex], sizeof(vec3));
+            memcpy(obj->faceVertices[vert].texel,obj->texels[texelIndex], sizeof(vec2));
             
             obj->outFace[i].verts[f] = vert;
         }
@@ -91,9 +92,9 @@ ObjData *gf3d_obj_load_from_file(char *filename)
     
     gf3d_obj_get_counts_from_file(obj, file);
     
-    obj->vertices = (Vector3D *)gf3d_allocate_array(sizeof(Vector3D),obj->vertex_count);
-    obj->normals = (Vector3D *)gf3d_allocate_array(sizeof(Vector3D),obj->normal_count);
-    obj->texels = (Vector2D *)gf3d_allocate_array(sizeof(Vector2D),obj->texel_count);
+    obj->vertices = (vec3 *)gf3d_allocate_array(sizeof(vec3),obj->vertex_count);
+    obj->normals = (vec3 *)gf3d_allocate_array(sizeof(vec3),obj->normal_count);
+    obj->texels = (vec2*)gf3d_allocate_array(sizeof(vec2),obj->texel_count);
     
     obj->faceVerts = (Face *)gf3d_allocate_array(sizeof(Face),obj->face_count);
     obj->faceNormals = (Face *)gf3d_allocate_array(sizeof(Face),obj->face_count);
@@ -185,9 +186,9 @@ void gf3d_obj_load_get_data_from_file(ObjData *obj, FILE* file)
                 &y,
                 &z
               );
-            obj->vertices[numvertices].x = x;
-            obj->vertices[numvertices].y = y;
-            obj->vertices[numvertices].z = z;
+            obj->vertices[numvertices][0] = x;
+            obj->vertices[numvertices][1] = y;
+            obj->vertices[numvertices][2] = z;
             numvertices++;
             break;
           case 'n':
@@ -198,9 +199,9 @@ void gf3d_obj_load_get_data_from_file(ObjData *obj, FILE* file)
                 &y,
                 &z
             );
-            obj->normals[numnormals].x = x;
-            obj->normals[numnormals].y = y;
-            obj->normals[numnormals].z = z;
+            obj->normals[numnormals][0] = x;
+            obj->normals[numnormals][1] = y;
+            obj->normals[numnormals][2] = z;
             numnormals++;
             break;
           case 't':
@@ -210,8 +211,8 @@ void gf3d_obj_load_get_data_from_file(ObjData *obj, FILE* file)
                 &x,
                 &y
               );
-            obj->texels[numtexcoords].x = x;
-            obj->texels[numtexcoords].y = 1 - y;
+            obj->texels[numtexcoords][0] = x;
+            obj->texels[numtexcoords][1] = 1 - y;
             numtexcoords++;
             break;
           default:

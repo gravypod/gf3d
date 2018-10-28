@@ -1,15 +1,15 @@
 #ifndef __GF3D_MESH_H__
 #define __GF3D_MESH_H__
 
+#include <linmath.h>
 #include <vulkan/vulkan.h>
-#include "gf3d_vector.h"
 #include "gf3d_text.h"
 
 typedef struct
 {
-    Vector3D vertex;
-    Vector3D normal;
-    Vector2D texel;
+    vec3 vertex;
+    vec3 normal;
+    vec2 texel;
 }Vertex;
 
 typedef struct
@@ -65,10 +65,11 @@ void gf3d_mesh_free(Mesh *mesh);
 /**
  * @brief adds a mesh to the render pass
  * @note: must be called within the render pass
- * @param mesh the mesh to render
+ * @param entity_id The ID of the entity you want to render
+ * @param mesh The Swap Chain Image ID you want to render
  * @param com the command pool to use to handle the request we are rendering with
  */
-void gf3d_mesh_render(Mesh *mesh,VkCommandBuffer commandBuffer, VkDescriptorSet * descriptorSet);
+void gf3d_mesh_render(uint32_t entity_id, uint32_t swap_chain_image_id, Mesh *mesh,VkCommandBuffer commandBuffer, VkDescriptorSet * descriptorSet);
 
 /**
  * @brief create a mesh's internal buffers based on vertices
