@@ -120,13 +120,7 @@ void gf3d_uniforms_flush(gf3d_ubo_manager *self, uint32_t swap_chain_image_id)
 
     void *mapped_memory = NULL;
 
-    vkMapMemory(
-            gf3d_vgraphics_get_default_logical_device(),
-            self->ubo_buffers_device_memory,
-            ubo_swap_chain_image_beginning_offset, ubo_block_size,
-            0,
-            &mapped_memory
-    );
+    vkMapMemory(gf3d_vgraphics_get_default_logical_device(), self->ubo_buffers_device_memory, ubo_swap_chain_image_beginning_offset, ubo_block_size, 0, &mapped_memory);
     {
         memcpy(mapped_memory, self->current_ubo_states, ubo_block_size);
         // Flush to make changes visible to the host
