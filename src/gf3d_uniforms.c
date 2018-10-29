@@ -1,36 +1,24 @@
 #include <gf3d_vgraphics.h>
 #include "gf3d_uniforms.h"
 
-uint32_t gf3d_uniforms_size()
-{
-    return sizeof(UniformBufferObject);
-}
-
 /**
  * @return Size of UBO on the GPU card
  */
-uint32_t gf3d_uniforms_aligned_size()
+uint32_t gf3d_uniforms_aligned_size(uint32_t size_ubo)
 {
-    static VkPhysicalDevice looked_up_device = VK_NULL_HANDLE;
-    static uint32_t aligned_uniform_size = 0;
-
     VkPhysicalDevice current = gf3d_vgraphics_get_default_physical_device();
 
-    if (current != looked_up_device) {
-        looked_up_device = current;
-        VkPhysicalDeviceProperties properties;
-        vkGetPhysicalDeviceProperties(current, &properties);
-        uint32_t min_alignment = (uint32_t) properties.limits.minUniformBufferOffsetAlignment;
+    VkPhysicalDeviceProperties properties;
+    vkGetPhysicalDeviceProperties(current, &properties);
+    uint32_t min_alignment = (uint32_t) properties.limits.minUniformBufferOffsetAlignment;
 
-        aligned_uniform_size = gf3d_uniforms_size();
 
-        // Check to see if we need to pad the UBO struct and add in the padding
-        if (aligned_uniform_size % min_alignment > 0) {
-            aligned_uniform_size += min_alignment - (aligned_uniform_size % min_alignment);
-        }
+    // Check to see if we need to pad the UBO struct and add in the padding
+    if (size_ubo % min_alignment > 0) {
+        return size_ubo + (min_alignment - (size_ubo % min_alignment));
     }
 
-    return aligned_uniform_size;
+    return size_ubo;
 }
 
 /**
@@ -53,12 +41,12 @@ uint32_t gf3d_uniforms_reference_index_get(gf3d_ubo_manager *self, uint32_t enti
 
 uint32_t gf3d_uniforms_reference_offset_get(gf3d_ubo_manager *self, uint32_t entity_id, uint32_t swap_chain_frame_id)
 {
-    return gf3d_uniforms_reference_index_get(self, entity_id, swap_chain_frame_id) * gf3d_uniforms_aligned_size();
+    return gf3d_uniforms_reference_index_get(self, entity_id, swap_chain_frame_id) * self->size_aligned_ubo;
 }
 
-UniformBufferObject *gf3d_uniforms_reference_local_get(gf3d_ubo_manager *self, uint32_t entity_id)
+void *gf3d_uniforms_reference_local_get(gf3d_ubo_manager *self, uint32_t entity_id)
 {
-    return ((void*)self->current_ubo_states) + (entity_id * gf3d_uniforms_aligned_size());
+    return (self->current_ubo_states) + (entity_id * self->size_aligned_ubo);
 }
 
 /**
@@ -68,7 +56,7 @@ UniformBufferObject *gf3d_uniforms_reference_local_get(gf3d_ubo_manager *self, u
 void gf3d_uniforms_buffer_allocate(gf3d_ubo_manager *const self)
 {
     // Calculate buffer size;
-    self->ubo_buffers_size = self->num_uniform_buffer_objects * gf3d_uniforms_aligned_size();
+    self->ubo_buffers_size = self->num_uniform_buffer_objects * self->size_aligned_ubo;
     gf3d_vgraphics_create_buffer(
             self->ubo_buffers_size,
 
@@ -82,41 +70,10 @@ void gf3d_uniforms_buffer_allocate(gf3d_ubo_manager *const self)
     );
 }
 
-void gf3d_uniforms_buffer_objects_init(gf3d_ubo_manager *const self, const float aspect_ratio)
-{
-    static UniformBufferObject local;
-
-    // Prepare the initial state of the UBO
-    mat4x4_identity(local.model);
-    mat4x4_identity(local.view);
-    mat4x4_identity(local.proj);
-
-    mat4x4_identity(local.view);
-
-    vec3 eye = {2, 20, 2};
-    vec3 center = {0, 0, 0};
-    vec3 up = {0, 0, 1};
-    mat4x4_look_at(
-            local.view,
-            eye,
-            center,
-            up
-    );
-    mat4x4_perspective(local.proj, (float) (45 * GF3D_DEGTORAD), aspect_ratio, 0.1f, 100);
-
-    // Vulkan has a Y index is flipped from OpenGL
-    local.proj[1][1] *= -1;
-
-    for (uint32_t i = 0; i < self->num_entities; i++) {
-        UniformBufferObject *const ubo = gf3d_uniforms_reference_local_get(self, i);
-        memcpy(ubo, &local, sizeof(UniformBufferObject));
-    }
-}
-
 void gf3d_uniforms_flush(gf3d_ubo_manager *self, uint32_t swap_chain_image_id)
 {
     uint32_t ubo_swap_chain_image_beginning_offset = gf3d_uniforms_reference_offset_get(self, 0, swap_chain_image_id);
-    uint32_t ubo_block_size = gf3d_uniforms_aligned_size() * self->num_entities;
+    uint32_t ubo_block_size = self->size_aligned_ubo * self->num_entities;
 
     void *mapped_memory = NULL;
 
@@ -136,18 +93,20 @@ void gf3d_uniforms_flush(gf3d_ubo_manager *self, uint32_t swap_chain_image_id)
     vkUnmapMemory(gf3d_vgraphics_get_default_logical_device(), self->ubo_buffers_device_memory);
 }
 
-gf3d_ubo_manager *gf3d_uniforms_init(uint32_t num_entities, uint32_t num_swap_chain_images, int render_width, int render_height)
+gf3d_ubo_manager *gf3d_uniforms_init(uint32_t size_ubo, uint32_t num_entities, uint32_t num_swap_chain_images)
 {
     gf3d_ubo_manager *const self = calloc(sizeof(gf3d_ubo_manager), 1);
+
+    self->size_ubo = size_ubo;
+    self->size_aligned_ubo = gf3d_uniforms_aligned_size(self->size_ubo);
 
     self->num_entities = num_entities;
     self->num_swap_chain_images = num_swap_chain_images;
     self->num_uniform_buffer_objects = self->num_entities * self->num_swap_chain_images;
 
-    self->current_ubo_states = calloc(gf3d_uniforms_aligned_size(), self->num_entities);
+    self->current_ubo_states = calloc(self->size_aligned_ubo, self->num_entities);
 
     gf3d_uniforms_buffer_allocate(self);
-    gf3d_uniforms_buffer_objects_init(self, ((float) render_width) / ((float) render_height));
 
     return self;
 }

@@ -189,13 +189,13 @@ void gf3d_model_create_descriptor_sets(Model *model)
         imageInfo.imageView = model->texture->textureImageView;
         imageInfo.sampler = model->texture->textureSampler;
     
-        instance_ubo_info.buffer = gf3d_vgraphics_get_dynamic_uniform_buffer();
+        instance_ubo_info.buffer = gf3d_vgraphics_get_instance_uniform_buffer_manager()->ubo_buffers_buffer;
         instance_ubo_info.offset = 0;
-        instance_ubo_info.range = gf3d_uniforms_size();
+        instance_ubo_info.range = gf3d_vgraphics_get_instance_uniform_buffer_manager()->size_ubo;
 
-        global_ubo_info.buffer = gf3d_vgraphics_get_dynamic_uniform_buffer();
+        global_ubo_info.buffer = gf3d_vgraphics_get_global_uniform_buffer_manager()->ubo_buffers_buffer;
         global_ubo_info.offset = 0;
-        global_ubo_info.range = gf3d_uniforms_size();
+        global_ubo_info.range = gf3d_vgraphics_get_global_uniform_buffer_manager()->size_ubo;
 
         descriptorWrite[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
         descriptorWrite[0].dstSet = model->descriptorSets[i];

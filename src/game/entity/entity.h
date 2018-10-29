@@ -30,7 +30,7 @@ typedef struct entity_struct
     vec3 rotation;
 
     Model *model;
-    UniformBufferObject *ubo;
+    InstanceUniformBufferObject *ubo;
 
     /**
      * If this entity is already being used by something

@@ -3,12 +3,9 @@
 
 layout(binding = 0) uniform InstanceUniformBufferObject {
     mat4 model;
-    mat4 view;
-    mat4 proj;
 } ubo;
 
 layout(binding = 1) uniform GlobalUniformBufferObject {
-    mat4 model;
     mat4 view;
     mat4 proj;
 } gubo;
