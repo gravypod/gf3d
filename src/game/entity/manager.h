@@ -41,9 +41,17 @@ void entity_manager_release(entity_t *entity);
  */
 void entity_manager_for_each(entity_consumer_t consumer, void *metadata, bool only_allocated);
 
-
+/**
+ * Update all entities within the entity manager.
+ */
 void entity_manager_update();
 
+/**
+ * Draw all entities within the entity manger.
+ *
+ * @param bufferFrame - The swap chain image index we are drawing to.
+ * @param commandBuffer - The command buffer we are sending draw commands to
+ */
 void entity_manager_draw(Uint32 bufferFrame, VkCommandBuffer commandBuffer);
 
 #endif

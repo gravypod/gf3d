@@ -119,7 +119,7 @@ Model * gf3d_model_load(char * filename)
 
     snprintf(assetname,GF3DLINELEN,"images/%s.png",filename);
     model->texture = gf3d_texture_load(assetname);
-    
+
     gf3d_model_setup(model);
     return model;
 }
@@ -133,10 +133,10 @@ void gf3d_model_free(Model *model)
 void gf3d_model_delete(Model *model)
 {
     if (!model)return;
-    
+
     gf3d_mesh_free(model->mesh);
     gf3d_texture_free(model->texture);
-    
+
     if (model->descriptorPool != VK_NULL_HANDLE)
     {
         vkDestroyDescriptorPool(gf3d_model.device, model->descriptorPool, NULL);
@@ -169,12 +169,12 @@ void gf3d_model_create_descriptor_sets(Model *model)
     {
         memcpy(&layouts[i],gf3d_model_get_descriptor_set_layout(model),sizeof(VkDescriptorSetLayout));
     }
-    
+
     allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
     allocInfo.descriptorPool = model->descriptorPool;
     allocInfo.descriptorSetCount = gf3d_model.chain_length;
     allocInfo.pSetLayouts = layouts;
-    
+
     model->descriptorSets = (VkDescriptorSet *)gf3d_allocate_array(sizeof(VkDescriptorSet),gf3d_model.chain_length);
     if (vkAllocateDescriptorSets(gf3d_model.device, &allocInfo, model->descriptorSets) != VK_SUCCESS)
     {
@@ -188,7 +188,7 @@ void gf3d_model_create_descriptor_sets(Model *model)
         imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
         imageInfo.imageView = model->texture->textureImageView;
         imageInfo.sampler = model->texture->textureSampler;
-    
+
         instance_ubo_info.buffer = gf3d_vgraphics_get_instance_uniform_buffer_manager()->ubo_buffers_buffer;
         instance_ubo_info.offset = 0;
         instance_ubo_info.range = gf3d_vgraphics_get_instance_uniform_buffer_manager()->size_ubo;
@@ -251,12 +251,12 @@ void gf3d_model_create_descriptor_pool(Model *model)
     poolSize[1].descriptorCount = gf3d_model.chain_length;
     poolSize[2].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
     poolSize[2].descriptorCount = gf3d_model.chain_length;
-    
+
     poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
     poolInfo.poolSizeCount = 3;
     poolInfo.pPoolSizes = poolSize;
     poolInfo.maxSets = gf3d_model.chain_length;
-    
+
     if (vkCreateDescriptorPool(gf3d_model.device, &poolInfo, NULL, &model->descriptorPool) != VK_SUCCESS)
     {
         slog("failed to create descriptor pool!");
@@ -269,15 +269,15 @@ void gf3d_model_create_descriptor_set_layout()
     VkDescriptorSetLayoutCreateInfo layoutInfo = {0};
     VkDescriptorSetLayoutBinding uboLayoutBinding = {0};
     VkDescriptorSetLayoutBinding samplerLayoutBinding = {0};
-    
+
     VkDescriptorSetLayoutBinding bindings[3];
-    
+
     samplerLayoutBinding.binding = 2;
     samplerLayoutBinding.descriptorCount = 1;
     samplerLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
     samplerLayoutBinding.pImmutableSamplers = NULL;
     samplerLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
-    
+
     memcpy(&bindings[2],&samplerLayoutBinding,sizeof(VkDescriptorSetLayoutBinding));
 
     uboLayoutBinding.binding = 1;
