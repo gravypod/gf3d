@@ -36,6 +36,11 @@ typedef struct entity_struct
     size_t id;
 
     /**
+     * Movement speed of an entity
+     */
+    float speed;
+
+    /**
      * The location in world space of the entity
      */
     vec3 position;

@@ -1,4 +1,4 @@
-#include <SDL.h>            
+#include <SDL.h>
 
 #include "simple_logger.h"
 #include "gf3d_vgraphics.h"
@@ -9,6 +9,7 @@
 #include "gf3d_texture.h"
 #include "entity/manager.h"
 #include "entity/definitions/agumon.h"
+#include "entity/definitions/player.h"
 
 int main(int argc,char *argv[])
 {
@@ -38,7 +39,7 @@ int main(int argc,char *argv[])
     
     // main game loop
     slog("gf3d main loop begin");
-
+    entity_t *player = entity_manager_make(entity_player_init, NULL);
     entity_t *agumon1 = entity_manager_make(entity_agumon_init, NULL);
     entity_t *agumon2 = entity_manager_make(entity_agumon_init, NULL);
 
@@ -52,12 +53,12 @@ int main(int argc,char *argv[])
     entity_manager_release(agumon2);
 
     while(!done)
-    {
+    {/*
         agumon1->rotation[2] += 0.001f;
         //agumon2->rotation[2] -= 0.003f;
 
         agumon1->rotation[1] += 0.001f;
-        //agumon2->rotation[1] -= 0.003f;
+        //agumon2->rotation[1] -= 0.003f;*/
 
         SDL_PumpEvents();   // update SDL's internal event structures
         keys = SDL_GetKeyboardState(NULL); // get the keyboard state for this frame
