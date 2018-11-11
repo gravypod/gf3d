@@ -42,21 +42,23 @@ int main(int argc,char *argv[])
     entity_t *agumon1 = entity_manager_make(entity_agumon_init, NULL);
     entity_t *agumon2 = entity_manager_make(entity_agumon_init, NULL);
 
-    agumon2->position[0] -= 6.0f;
+    //agumon2->position[0] -= 6.0f;
 
     agumon1->scale[0] = 0.5f;
     agumon1->scale[1] = 0.5f;
     agumon1->scale[2] = 0.5f;
-    //agumon2->position.y -= 1;
-    //agumon2->position.z -= 1;
+
+    //entity_manager_release(agumon1);
+    entity_manager_release(agumon2);
 
     while(!done)
     {
         agumon1->rotation[2] += 0.001f;
-        agumon2->rotation[2] -= 0.003f;
+        //agumon2->rotation[2] -= 0.003f;
 
         agumon1->rotation[1] += 0.001f;
-        agumon2->rotation[1] -= 0.003f;
+        //agumon2->rotation[1] -= 0.003f;
+
         SDL_PumpEvents();   // update SDL's internal event structures
         keys = SDL_GetKeyboardState(NULL); // get the keyboard state for this frame
         //update game things here

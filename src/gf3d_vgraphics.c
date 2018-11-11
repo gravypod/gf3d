@@ -10,6 +10,7 @@
 #include <stdio.h>
 #include <gf3d_uniforms.h>
 #include <linmath.h>
+#include <gf3d_camera.h>
 
 #include "gf3d_types.h"
 #include "gf3d_validation.h"
@@ -63,7 +64,10 @@ typedef struct
     Pipeline                   *pipe;
     
     Command                    *graphicsCommandPool;
-    gf3d_ubo_manager           *uniform_buffer_manager;
+
+    gf3d_ubo_manager           *instance_uniform_buffer_manager;
+    gf3d_ubo_manager           *global_uniform_buffer_manager;
+
 }vGraphics;
 
 static vGraphics gf3d_vgraphics = {0};
@@ -134,12 +138,18 @@ void gf3d_vgraphics_init(
     
     gf3d_vgraphics_semaphores_create();
 
-    gf3d_vgraphics.uniform_buffer_manager = gf3d_uniforms_init(
+    gf3d_vgraphics.instance_uniform_buffer_manager = gf3d_uniforms_init(
+            sizeof(InstanceUniformBufferObject),
             MAX_NUM_ENTITIES,
-            gf3d_swapchain_get_swap_image_count(),
-            renderWidth, renderHeight
+            gf3d_swapchain_get_swap_image_count()
     );
-    
+    gf3d_vgraphics.global_uniform_buffer_manager = gf3d_uniforms_init(
+            sizeof(GlobalUniformBufferObject),
+            1,
+            gf3d_swapchain_get_swap_image_count()
+    );
+
+    gf3d_camera_init(gf3d_uniforms_reference_local_get(gf3d_vgraphics.global_uniform_buffer_manager, 0), renderWidth, renderHeight);
 }
 
 
@@ -302,19 +312,19 @@ void gf3d_vgraphics_setup(
     
 }
 
-gf3d_ubo_manager *gf3d_vgraphics_get_uniform_buffer_manager()
+gf3d_ubo_manager *gf3d_vgraphics_get_instance_uniform_buffer_manager()
 {
-    return gf3d_vgraphics.uniform_buffer_manager;
+    return gf3d_vgraphics.instance_uniform_buffer_manager;
+}
+
+gf3d_ubo_manager *gf3d_vgraphics_get_global_uniform_buffer_manager()
+{
+    return gf3d_vgraphics.global_uniform_buffer_manager;
 }
 
 VkBuffer gf3d_vgraphics_get_dynamic_uniform_buffer()
 {
-    return gf3d_vgraphics_get_uniform_buffer_manager()->ubo_buffers_buffer;
-}
-
-VkDeviceSize gf3d_vgraphics_get_dynamic_uniform_buffer_size()
-{
-    return gf3d_vgraphics_get_uniform_buffer_manager()->ubo_buffers_size;
+    return gf3d_vgraphics_get_instance_uniform_buffer_manager()->ubo_buffers_buffer;
 }
 
 void gf3d_vgraphics_close()
@@ -322,7 +332,8 @@ void gf3d_vgraphics_close()
     int i;
     slog("cleaning up vulkan graphics");
     
-    gf3d_uniforms_free(gf3d_vgraphics.uniform_buffer_manager);
+    gf3d_uniforms_free(gf3d_vgraphics.instance_uniform_buffer_manager);
+    gf3d_uniforms_free(gf3d_vgraphics.global_uniform_buffer_manager);
     
     if (gf3d_vgraphics.logicalDeviceCreated)
     {
@@ -439,7 +450,8 @@ void gf3d_vgraphics_render_end(Uint32 imageIndex)
 
 
     // Update the UBOs for this frame.
-    gf3d_uniforms_flush(gf3d_vgraphics.uniform_buffer_manager, imageIndex);
+    gf3d_uniforms_flush(gf3d_vgraphics.instance_uniform_buffer_manager, imageIndex);
+    gf3d_uniforms_flush(gf3d_vgraphics.global_uniform_buffer_manager, imageIndex);
 
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 

@@ -11,7 +11,7 @@ void entity_agumon_init(entity_t *entity, void *metadata)
     entity->model = gf3d_model_load("agumon");
 
     // Locate this entity's UBO
-    entity->ubo = gf3d_uniforms_reference_local_get(gf3d_vgraphics_get_uniform_buffer_manager(), (uint32_t) entity->id);
+    entity->ubo = gf3d_uniforms_reference_local_get(gf3d_vgraphics_get_instance_uniform_buffer_manager(), (uint32_t) entity->id);
 
     entity->scale[0] = 1.0f;
     entity->scale[1] = 1.0f;
@@ -32,7 +32,7 @@ void entity_agumon_update(entity_t *entity, void *metadata)
 
 void entity_agumon_free(entity_t *entity, void *metadata)
 {
-    // TODO: Free any allocated resources
+    gf3d_model_free(entity->model);
 }
 
 void entity_agumon_draw(entity_t *e, entity_render_pass_t *pass)

@@ -5,15 +5,22 @@
 #include <vulkan/vulkan.h>
 #include <linmath.h>
 
-typedef struct
-{
-    mat4x4 model;
-    mat4x4 view;
-    mat4x4 proj;
-} UniformBufferObject;
 
 typedef struct
 {
+    mat4x4 view;
+    mat4x4 proj;
+} GlobalUniformBufferObject;
+
+typedef struct
+{
+    mat4x4 model;
+} InstanceUniformBufferObject;
+
+typedef struct
+{
+    uint32_t size_ubo, size_aligned_ubo;
+
     uint32_t num_entities;
     uint32_t num_swap_chain_images;
     uint32_t num_uniform_buffer_objects;
@@ -23,19 +30,20 @@ typedef struct
     VkBuffer ubo_buffers_buffer;
     VkDeviceMemory ubo_buffers_device_memory;
 
-    UniformBufferObject *current_ubo_states;
+    void *current_ubo_states;
 } gf3d_ubo_manager;
 
 /**
  * Create a ubo manager.
  *
+ * @param size_ubo
  * @param num_entities
  * @param num_swap_chain_images
  * @param render_height
  * @param render_width
  * @return
  */
-gf3d_ubo_manager *gf3d_uniforms_init(uint32_t num_entities, uint32_t num_swap_chain_images, int render_width, int render_height);
+gf3d_ubo_manager *gf3d_uniforms_init(uint32_t size_ubo, uint32_t num_entities, uint32_t num_swap_chain_images);
 
 void gf3d_uniforms_free(const gf3d_ubo_manager *self);
 
@@ -49,9 +57,7 @@ void gf3d_uniforms_free(const gf3d_ubo_manager *self);
  */
 uint32_t gf3d_uniforms_reference_offset_get(gf3d_ubo_manager *self, uint32_t entity_id, uint32_t swap_chain_frame_id);
 
-UniformBufferObject *gf3d_uniforms_reference_local_get(gf3d_ubo_manager *self, uint32_t entity_id);
-
-uint32_t gf3d_uniforms_size();
+void *gf3d_uniforms_reference_local_get(gf3d_ubo_manager *self, uint32_t entity_id);
 
 /**
  * Flush the memory region for the GPU

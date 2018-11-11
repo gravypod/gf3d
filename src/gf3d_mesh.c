@@ -181,10 +181,15 @@ void gf3d_mesh_render(uint32_t entity_id, uint32_t swap_chain_image_id, Mesh *me
     
     vkCmdBindIndexBuffer(commandBuffer, mesh->faceBuffer, 0, VK_INDEX_TYPE_UINT32);
 
-    gf3d_ubo_manager *const ubo_manger = gf3d_vgraphics_get_uniform_buffer_manager();
-    uint32_t dynamic_offsets = gf3d_uniforms_reference_offset_get(ubo_manger, entity_id, swap_chain_image_id);
+    gf3d_ubo_manager *const instance_ubo_manger = gf3d_vgraphics_get_instance_uniform_buffer_manager(),
+                     *const global_ubo_manger = gf3d_vgraphics_get_global_uniform_buffer_manager();
 
-    vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipe->pipelineLayout, 0, 1, descriptorSet, 1, &dynamic_offsets);
+    uint32_t dynamic_offsets[2] = {
+            gf3d_uniforms_reference_offset_get(instance_ubo_manger, entity_id, swap_chain_image_id),
+            gf3d_uniforms_reference_offset_get(global_ubo_manger, 0, swap_chain_image_id)
+    };
+
+    vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipe->pipelineLayout, 0, 1, descriptorSet, 2, dynamic_offsets);
     
     vkCmdDrawIndexed(commandBuffer, mesh->faceCount * 3, 1, 0, 0, 0);
 }

@@ -9,9 +9,19 @@
 #include <gf3d_uniforms.h>
 #include "gf3d_model.h"
 
+/**
+ * Definition of a render pass from the game engine. Contains information
+ * needed to correctly draw a scene.
+ */
 typedef struct
 {
+    /**
+     * The image in the swap chain we are rendering to.
+     */
     Uint32 bufferFrame;
+    /**
+     * The command buffer we are using to render
+     */
     VkCommandBuffer commandBuffer;
 } entity_render_pass_t;
 
@@ -25,22 +35,49 @@ typedef struct entity_struct
      */
     size_t id;
 
+    /**
+     * The location in world space of the entity
+     */
     vec3 position;
+    /**
+     * The scale in world space of the entity
+     */
     vec3 scale;
+    /**
+     * The rotation, per axis, in world space of the entity.
+     */
     vec3 rotation;
 
+    /**
+     * Pointer to a Model. This defines the information
+     * used to render the entity combining a mesh and a texture.
+     */
     Model *model;
-    UniformBufferObject *ubo;
+
+    /**
+     * The UBO allocated to this entity.
+     */
+    InstanceUniformBufferObject *ubo;
 
     /**
      * If this entity is already being used by something
      */
     bool allocated;
 
+    /**
+     * Called to free this entity.
+     */
     void (*free)(struct entity_struct *);
 
+    /**
+     * Called to update this entity
+     */
     void (*update)(struct entity_struct *);
 
+    /**
+     * Called to draw this entity
+     * @param render_pass
+     */
     void (*draw)(struct entity_struct *, const entity_render_pass_t *const render_pass);
 } entity_t;
 
@@ -56,21 +93,33 @@ typedef void (*entity_consumer_t)(entity_t *, void *);
 
 
 /**
- * Initialize an empty entity
- * @param e
+ * Initialize an empty entity. This is used to reset an entity to an unused state.
+ *
+ * @param e - Entity to blank out
  */
 void entity_init_empty(entity_t *e, void *metadata);
 
-
+/**
+ * Update a generic entity.
+ *
+ * @param entity - Entity to update
+ * @param metadata - Metadata to pass to internal function
+ */
 void entity_update(entity_t *entity, void *metadata);
 
+/**
+ * Free an entity.
+ *
+ * @param entity - Entity to free
+ * @param metadata - Metadata to pass to entity function
+ */
 void entity_free(entity_t *entity, void *metadata);
 
 /**
  * Draw an entity to a command buffer
  *
- * @param e
- * @param buffer
+ * @param e - Entity to draw
+ * @param render_pass - The render pass metadata to send to the entity.
  */
 void entity_draw(entity_t *e, const entity_render_pass_t *render_pass);
 
