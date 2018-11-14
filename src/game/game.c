@@ -26,10 +26,11 @@ int main(int argc,char *argv[])
     
     init_logger("gf3d.log");    
     slog("gf3d begin");
+    int width = 1200, height = 700;
     gf3d_vgraphics_init(
         "gf3d",                 //program name
-        1200,                   //screen width
-        700,                    //screen height
+        width,                  //screen width
+        height,                 //screen height
         background_color,       //background color
         0,                      //fullscreen
         1                       //validation
@@ -43,7 +44,7 @@ int main(int argc,char *argv[])
     entity_t *agumon1 = entity_manager_make(entity_agumon_init, NULL);
     entity_t *agumon2 = entity_manager_make(entity_agumon_init, NULL);
 
-    //agumon2->position[0] -= 6.0f;
+    agumon1->position[0] = 50.0f;
 
     agumon1->scale[0] = 0.5f;
     agumon1->scale[1] = 0.5f;
@@ -65,8 +66,7 @@ int main(int argc,char *argv[])
         //update game things here
 
         entity_manager_update();
-        //gf3d_vgraphics_rotate_camera(0.001);
-        
+
         // configure render command for graphics command pool
         // for each mesh, get a command and configure it from the pool
         bufferFrame = gf3d_vgraphics_render_begin();

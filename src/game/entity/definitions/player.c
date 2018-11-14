@@ -3,6 +3,9 @@
 #include <gf3d_swapchain.h>
 #include "player.h"
 
+
+gf3d_camera *camera;
+
 const float entity_player_speed_when_clicking(const entity_t *const entity, const bool positive, const bool negative)
 {
     if (positive) {
@@ -28,14 +31,26 @@ void entity_player_position_movement_calculate(entity_t *const entity)
     const bool a = key_states[SDL_SCANCODE_A]; // Right
 
     vec3 delta = {
-            entity_player_speed_when_clicking(entity, d, a),
             entity_player_speed_when_clicking(entity, w, s),
+            entity_player_speed_when_clicking(entity, d, a),
             0.0f
     };
     vec3_scale(delta, delta, entity->speed);
 
-    vec3_add(entity->position, entity->position, delta);
-    gf3d_camera_move(delta);
+    // Move the player camera by these metrics
+    gf3d_camera_move(camera, delta[0], delta[1], delta[2]);
+}
+
+void entity_player_rotation_movement_calculate(entity_t *const entity)
+{
+    int changeX, changeY;
+
+    SDL_GetRelativeMouseState(&changeX, &changeY);
+
+    float yaw = ((float) changeX) * 0.4f;
+    float pitch = ((float) changeY) * -0.3f;
+
+    gf3d_camera_turn(camera, pitch, yaw);
 }
 
 
@@ -43,9 +58,14 @@ void entity_player_init(entity_t *entity, void *metadata)
 {
     entity->update = (void (*)(struct entity_struct *)) entity_player_update;
     entity->speed = 0.1f;
+    camera = gf3d_camera_init(windowWidth, windowHeight, &entity->position, &entity->rotation);
 }
 
 void entity_player_update(entity_t *entity, void *metadata)
 {
     entity_player_position_movement_calculate(entity);
+    entity_player_rotation_movement_calculate(entity);
+
+    gf3d_camera_update(camera);
+    //gf3d_camera_rotation_set(gf3d_vgraphics_get_camera(), entity->rotation);
 }

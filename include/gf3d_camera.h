@@ -4,25 +4,30 @@
 #include <linmath.h>
 #include "gf3d_uniforms.h"
 
-int gf3d_camera_width();
 
-int gf3d_camera_height();
+typedef struct
+{
+    GlobalUniformBufferObject *ubo;
 
+    vec3 world_up;
 
-void gf3d_camera_init(GlobalUniformBufferObject *global_ubo, int render_width, int render_height);
+    float width;
+    float height;
 
-/**
- * @brief explicitely set the camera positon, holding all other parameters the same
- * @param position the new position for the camera
- */
-void gf3d_camera_set_position(vec3 position);
+    vec3 front, up, right;
+    vec3 *position, *rotation;
 
-void gf3d_camera_rotate(vec3 rotation);
+    float field_of_view;
+    float near_plane;
+    float far_plane;
+} gf3d_camera;
 
-/**
- * @brief move the camera relatively based on the vector provided
- * @param move the ammount to move the camera
- */
-void gf3d_camera_move(vec3 move);
+void gf3d_camera_turn(gf3d_camera *self, float deltaPitch, float deltaYaw);
+
+void gf3d_camera_move(gf3d_camera *self, float deltaForwardScale, float deltaRightScale, float deltaUpScale);
+
+void gf3d_camera_update(gf3d_camera *self);
+
+gf3d_camera *gf3d_camera_init(int render_width, int render_height, vec3 *position, vec3 *rotation);
 
 #endif

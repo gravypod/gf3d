@@ -95,6 +95,8 @@ void gf3d_vgraphics_setup(
     Bool enableValidation
 );
 
+int windowHeight, windowWidth;
+
 void gf3d_vgraphics_init(
     char *windowName,
     int renderWidth,
@@ -104,6 +106,10 @@ void gf3d_vgraphics_init(
     Bool enableValidation
 )
 {
+    // Keep track of this
+    windowWidth = renderWidth;
+    windowHeight = renderHeight;
+
     VkDevice device;
 
     gf3d_vgraphics_setup(
@@ -148,8 +154,6 @@ void gf3d_vgraphics_init(
             1,
             gf3d_swapchain_get_swap_image_count()
     );
-
-    gf3d_camera_init(gf3d_uniforms_reference_local_get(gf3d_vgraphics.global_uniform_buffer_manager, 0), renderWidth, renderHeight);
 }
 
 
@@ -184,6 +188,9 @@ void gf3d_vgraphics_setup(
             flags |= SDL_WINDOW_FULLSCREEN;
         }
     }
+
+    int a = SDL_CaptureMouse(true);
+
     gf3d_vgraphics.main_window = SDL_CreateWindow(windowName,
                              SDL_WINDOWPOS_UNDEFINED,
                              SDL_WINDOWPOS_UNDEFINED,
@@ -322,6 +329,7 @@ gf3d_ubo_manager *gf3d_vgraphics_get_global_uniform_buffer_manager()
     return gf3d_vgraphics.global_uniform_buffer_manager;
 }
 
+
 VkBuffer gf3d_vgraphics_get_dynamic_uniform_buffer()
 {
     return gf3d_vgraphics_get_instance_uniform_buffer_manager()->ubo_buffers_buffer;
@@ -447,7 +455,6 @@ void gf3d_vgraphics_render_end(Uint32 imageIndex)
     VkSemaphore signalSemaphores[] = {gf3d_vgraphics.renderFinishedSemaphore};
     VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
     swapChains[0] = gf3d_swapchain_get();
-
 
     // Update the UBOs for this frame.
     gf3d_uniforms_flush(gf3d_vgraphics.instance_uniform_buffer_manager, imageIndex);

@@ -4,11 +4,14 @@
 #include <vulkan/vulkan.h>
 #include <linmath.h>
 
+#include "gf3d_camera.h"
 #include "gf3d_pipeline.h"
 #include "gf3d_commands.h"
 #include "gf3d_uniforms.h"
 
 #define GF3D_VGRAPHICS_DISCRETE 1   //Choosing whether to use discrete [1] or integrated graphics [0]
+
+extern int windowWidth, windowHeight;
 
 /**
  * @brief init Vulkan / SDL, setup device and initialize infrastructure for 3d graphics
