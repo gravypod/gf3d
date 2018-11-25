@@ -42,7 +42,7 @@ int main(int argc,char *argv[])
     slog("gf3d main loop begin");
     entity_t *player = entity_manager_make(entity_player_init, NULL);
     entity_t *agumon1 = entity_manager_make(entity_agumon_init, NULL);
-    entity_t *agumon2 = entity_manager_make(entity_agumon_init, NULL);
+    //entity_t *agumon2 = entity_manager_make(entity_agumon_init, NULL);
 
     agumon1->position[0] = 50.0f;
 
@@ -51,7 +51,7 @@ int main(int argc,char *argv[])
     agumon1->scale[2] = 0.5f;
 
     //entity_manager_release(agumon1);
-    entity_manager_release(agumon2);
+    //entity_manager_release(agumon2);
 
     while(!done)
     {/*

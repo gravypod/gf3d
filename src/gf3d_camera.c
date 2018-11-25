@@ -18,12 +18,12 @@ static inline const float gf3d_camera_aspect_ratio(const gf3d_camera *const self
 
 static inline const float gf3d_camera_pitch(const gf3d_camera *const self)
 {
-    return *self->rotation[0];
+    return self->rotation[0];
 }
 
 static inline const float gf3d_camera_yaw(const gf3d_camera *const self)
 {
-    return *self->rotation[1];
+    return self->rotation[1];
 }
 
 
@@ -36,7 +36,7 @@ static inline void gf3d_camera_pitch_set(gf3d_camera *const self, float pitch)
         pitch = -89.0f;
     }
 
-    *self->rotation[0] = pitch;
+    self->rotation[0] = pitch;
 }
 
 static inline void gf3d_camera_yaw_set(const gf3d_camera *const self, float yaw)
@@ -47,7 +47,7 @@ static inline void gf3d_camera_yaw_set(const gf3d_camera *const self, float yaw)
     if (yaw < 0.0f)
         yaw += 360.0f;
 
-    *self->rotation[1] = yaw;
+    self->rotation[1] = yaw;
 }
 
 
@@ -65,9 +65,9 @@ void gf3d_camera_move(gf3d_camera *const self, float deltaForwardScale, float de
     vec3_scale(deltaRight, self->right, deltaRightScale);
     vec3_scale(deltaUp, self->up, deltaUpScale);
 
-    vec3_add(*self->position, *self->position, deltaForward);
-    vec3_add(*self->position, *self->position, deltaRight);
-    vec3_add(*self->position, *self->position, deltaUp);
+    vec3_add(self->position, self->position, deltaForward);
+    vec3_add(self->position, self->position, deltaRight);
+    vec3_add(self->position, self->position, deltaUp);
 
 }
 
@@ -103,10 +103,10 @@ void gf3d_camera_update(gf3d_camera *const self)
     gf3d_camera_vector_right_update(self);
     gf3d_camera_vector_up_update(self);
 
-    vec3_add(target, *self->position, self->front);
+    vec3_add(target, self->position, self->front);
     mat4x4_look_at(
             self->ubo->view,
-            *self->position,
+            self->position,
             target,
             self->up
     );
@@ -121,7 +121,7 @@ void gf3d_camera_update(gf3d_camera *const self)
     self->ubo->proj[0][0] *= -1;
 }
 
-gf3d_camera *gf3d_camera_init(int render_width, int render_height, vec3 *position, vec3 *rotation)
+gf3d_camera *gf3d_camera_init(int render_width, int render_height, vec3 position, vec3 rotation)
 {
     const vec3 defaultUp = {0, 1, 0};
     const vec3 defaultFront = {0.0f, 0.0f, -1.0f};

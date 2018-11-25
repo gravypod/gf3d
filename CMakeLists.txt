@@ -32,7 +32,7 @@ set(SOURCE_FILES
         src/gf3d_vgraphics.c
         include/gf3d_uniforms.h src/gf3d_uniforms.c
         src/gf3d_vqueues.c
-        src/simple_logger.c src/game/entity/definitions/player.c src/game/entity/definitions/player.h)
+        src/simple_logger.c src/game/entity/definitions/player.c src/game/entity/definitions/player.h include/gf3d_collide.h src/gf3d_collide.c)
 
 include_directories(include libs/include ${SDL2_INCLUDE_DIRS} ${SDL2IMAGE_INCLUDE_DIRS})
 add_executable(${PROJECT_NAME} ${SOURCE_FILES} ${GAME_SOURCE_FILES})

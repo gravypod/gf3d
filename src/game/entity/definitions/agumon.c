@@ -8,6 +8,7 @@ void entity_agumon_init(entity_t *entity, void *metadata)
     entity->draw = (void (*)(struct entity_struct *, const entity_render_pass_t *const)) entity_agumon_draw;
     entity->update = (void (*)(struct entity_struct *)) entity_agumon_update;
     entity->free = (void (*)(struct entity_struct *)) entity_agumon_free;
+    entity->touching = entity_agumon_touch;
     entity->model = gf3d_model_load("agumon");
 
     // Locate this entity's UBO
@@ -28,6 +29,11 @@ void entity_agumon_update(entity_t *entity, void *metadata)
     mat4x4_rotate_Z(entity->ubo->model, entity->ubo->model, entity->rotation[2]);
 
     mat4x4_scale_aniso(entity->ubo->model, entity->ubo->model, entity->scale[0], entity->scale[1], entity->scale[2]);
+}
+
+void entity_agumon_touch(entity_t *entity, entity_t *them)
+{
+    printf("%zu colliding with %zu\n", entity->id, them->id);
 }
 
 void entity_agumon_free(entity_t *entity, void *metadata)

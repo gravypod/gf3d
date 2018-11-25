@@ -15,7 +15,7 @@ typedef struct
     float height;
 
     vec3 front, up, right;
-    vec3 *position, *rotation;
+    float *position, *rotation;
 
     float field_of_view;
     float near_plane;
@@ -28,6 +28,6 @@ void gf3d_camera_move(gf3d_camera *self, float deltaForwardScale, float deltaRig
 
 void gf3d_camera_update(gf3d_camera *self);
 
-gf3d_camera *gf3d_camera_init(int render_width, int render_height, vec3 *position, vec3 *rotation);
+gf3d_camera *gf3d_camera_init(int render_width, int render_height, vec3 position, vec3 rotation);
 
 #endif

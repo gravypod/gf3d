@@ -1,5 +1,6 @@
 #include <malloc.h>
 #include "manager.h"
+#include <gf3d_collide.h>
 
 struct
 {
@@ -113,6 +114,31 @@ void entity_manager_for_each(entity_consumer_t consumer, void *metadata, bool on
     }
 }
 
+void entity_manager_collision()
+{
+    for (size_t self_i = 0; self_i < entity_pool.num_entities; self_i++) {
+        entity_t *self = &entity_pool.entities[self_i];
+
+        if (!self->allocated || !self->touching) {
+            continue;
+        }
+
+
+        for (size_t checking_i = 0; checking_i < entity_pool.num_entities; checking_i++) {
+            entity_t *them = &entity_pool.entities[checking_i];
+
+            if (!them->allocated || !them->touching || self_i == checking_i) {
+                continue;
+            }
+
+            if (!gf3d_collide_is_entity_touching(self, them)) {
+                continue;
+            }
+
+            entity_touch(self, them);
+        }
+    }
+}
 
 void entity_manager_release(entity_t *entity)
 {
@@ -125,6 +151,7 @@ void entity_manager_release(entity_t *entity)
 void entity_manager_update()
 {
     entity_manager_for_each(entity_update, NULL, true);
+    entity_manager_collision();
 }
 
 void entity_manager_draw(Uint32 bufferFrame, VkCommandBuffer commandBuffer)

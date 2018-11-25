@@ -20,6 +20,15 @@ void entity_agumon_init(entity_t *entity, void *metadata);
  */
 void entity_agumon_update(entity_t *entity, void *metadata);
 
+
+/**
+ * Touch an entity
+ *
+ * @param entity - The entity struct to update
+ * @param them - Entity we are touching
+ */
+void entity_agumon_touch(entity_t *entity, entity_t *them);
+
 /**
  * Free an Agumon
  *

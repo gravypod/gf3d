@@ -80,6 +80,11 @@ typedef struct entity_struct
     void (*update)(struct entity_struct *);
 
     /**
+     * Called when touching another entity
+     */
+    void (*touching)(struct entity_struct *, struct entity_struct *);
+
+    /**
      * Called to draw this entity
      * @param render_pass
      */
@@ -103,6 +108,13 @@ typedef void (*entity_consumer_t)(entity_t *, void *);
  * @param e - Entity to blank out
  */
 void entity_init_empty(entity_t *e, void *metadata);
+
+/**
+ * Called when touching another entity
+ * @param a - Self reference
+ * @param b - Entity being touched
+ */
+void entity_touch(entity_t *a, entity_t *b);
 
 /**
  * Update a generic entity.
