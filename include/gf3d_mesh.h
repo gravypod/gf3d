@@ -17,6 +17,12 @@ typedef struct
     Uint32  verts[3];
 }Face;
 
+typedef struct {
+    float x_min, x_max;
+    float y_min, y_max;
+    float z_min, z_max;
+} bounding_box_t;
+
 typedef struct
 {
     TextLine        filename;
@@ -28,6 +34,7 @@ typedef struct
     Uint32          faceCount;
     VkBuffer        faceBuffer;
     VkDeviceMemory  faceBufferMemory;
+    bounding_box_t  bounding_box;
 }Mesh;
 
 /**

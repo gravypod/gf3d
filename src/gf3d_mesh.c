@@ -244,7 +244,7 @@ void gf3d_mesh_create_vertex_buffer_from_vertices(Mesh *mesh,Vertex *vertices,Ui
     
     mesh->vertexCount = vcount;
     mesh->bufferMemory = mesh->bufferMemory;
-    
+
     gf3d_mesh_setup_face_buffers(mesh,faces,fcount);
     
     slog("created a mesh with %i vertices and %i face",vcount,fcount);
@@ -272,6 +272,39 @@ Mesh *gf3d_mesh_load(char *filename)
     gf3d_mesh_create_vertex_buffer_from_vertices(mesh,obj->faceVertices,obj->face_vert_count,obj->outFace,obj->face_count);
     gf3d_obj_free(obj);
     gf3d_line_cpy(mesh->filename,filename);
+
+
+    vec3 *point = &obj->faceVertices[0].vertex;
+    mesh->bounding_box.x_min = mesh->bounding_box.x_max = *point[0];
+    mesh->bounding_box.y_min = mesh->bounding_box.y_max = *point[1];
+    mesh->bounding_box.z_min = mesh->bounding_box.z_max = *point[2];
+
+    for (Uint32 i = 0; i < obj->face_vert_count; i++) {
+        point = &obj->faceVertices[i].vertex;
+        float x = *point[0], y = *point[0], z = *point[0];
+
+        /// X Axis
+        if (x < mesh->bounding_box.x_min)
+            mesh->bounding_box.x_min = x;
+
+        if (x > mesh->bounding_box.x_max)
+            mesh->bounding_box.x_max = x;
+
+        /// Y Axis
+        if (y < mesh->bounding_box.y_min)
+            mesh->bounding_box.y_min = y;
+
+        if (y > mesh->bounding_box.y_max)
+            mesh->bounding_box.y_max = y;
+
+        /// Z Axis
+        if (z < mesh->bounding_box.z_min)
+            mesh->bounding_box.z_min = z;
+
+        if (z > mesh->bounding_box.z_max)
+            mesh->bounding_box.z_max = z;
+    }
+
     return mesh;
 }
 
