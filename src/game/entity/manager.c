@@ -1,5 +1,6 @@
 #include <malloc.h>
 #include "manager.h"
+#include "../world.h"
 #include <gf3d_collide.h>
 
 struct

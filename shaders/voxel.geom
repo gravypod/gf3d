@@ -6,27 +6,28 @@
 
 // Terrible but only resource: https://www.khronos.org/opengl/wiki/Geometry_Shader
 layout (points) in;
-layout (triangle_strip, max_vertices = 14) out;
+layout (triangle_strip, max_vertices = 42) out;
 
 out gl_PerVertex {
     vec4 gl_Position;
 };
 
+float box_scale = 10.f;
 vec3 cube_strip_verts[] = {
-    vec3(-1.f, 1.f, 1.f),     // Front-top-left
-    vec3(1.f, 1.f, 1.f),      // Front-top-right
-    vec3(-1.f, -1.f, 1.f),    // Front-bottom-left
-    vec3(1.f, -1.f, 1.f),     // Front-bottom-right
-    vec3(1.f, -1.f, -1.f),    // Back-bottom-right
-    vec3(1.f, 1.f, 1.f),      // Front-top-right
-    vec3(1.f, 1.f, -1.f),     // Back-top-right
-    vec3(-1.f, 1.f, 1.f),     // Front-top-left
-    vec3(-1.f, 1.f, -1.f),    // Back-top-left
-    vec3(-1.f, -1.f, 1.f),    // Front-bottom-left
-    vec3(-1.f, -1.f, -1.f),   // Back-bottom-left
-    vec3(1.f, -1.f, -1.f),    // Back-bottom-right
-    vec3(-1.f, 1.f, -1.f),    // Back-top-left
-    vec3(1.f, 1.f, -1.f)      // Back-top-right
+    vec3(-box_scale, box_scale, box_scale),     // Front-top-left
+    vec3(box_scale, box_scale, box_scale),      // Front-top-right
+    vec3(-box_scale, -box_scale, box_scale),    // Front-bottom-left
+    vec3(box_scale, -box_scale, box_scale),     // Front-bottom-right
+    vec3(box_scale, -box_scale, -box_scale),    // Back-bottom-right
+    vec3(box_scale, box_scale, box_scale),      // Front-top-right
+    vec3(box_scale, box_scale, -box_scale),     // Back-top-right
+    vec3(-box_scale, box_scale, box_scale),     // Front-top-left
+    vec3(-box_scale, box_scale, -box_scale),    // Back-top-left
+    vec3(-box_scale, -box_scale, box_scale),    // Front-bottom-left
+    vec3(-box_scale, -box_scale, -box_scale),   // Back-bottom-left
+    vec3(box_scale, -box_scale, -box_scale),    // Back-bottom-right
+    vec3(-box_scale, box_scale, -box_scale),    // Back-top-left
+    vec3(box_scale, box_scale, -box_scale)      // Back-top-right
 };
 
 void main(void)

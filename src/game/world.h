@@ -4,10 +4,11 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include "coords.h"
+#include "entity/entity.h"
 
 #define CHUNK_X 16
 #define CHUNK_Y 16
-#define CHUNK_Z 255
+#define CHUNK_Z 16
 
 #define CHUNK_SIZE (CHUNK_X * CHUNK_Y * CHUNK_Z)
 
@@ -103,5 +104,7 @@ static inline bool world_chunk_blocks_is_loaded(world_t *w, long x, long y)
 }
 
 void world_init();
+void world_update();
+void world_render(VkCommandBuffer buffer, Uint32 frame);
 
 #endif

@@ -5,7 +5,7 @@
 #include <stddef.h>
 #include "entity.h"
 
-#define MAX_NUM_ENTITIES 128
+#define MAX_NUM_ENTITIES 32
 
 /**
  * Wrap entity_manager_make with casts for simplicity

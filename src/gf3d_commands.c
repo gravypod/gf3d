@@ -174,14 +174,8 @@ VkCommandBuffer gf3d_command_rendering_begin(Uint32 index)
     pipe = gf3d_vgraphics_get_graphics_pipeline();
     
     commandBuffer = gf3d_command_begin_single_time(gf3d_vgraphics_get_graphics_command_pool());
-    
-    gf3d_command_configure_render_pass(
-            commandBuffer,
-            pipe->renderPass,
-            gf3d_swapchain_get_frame_buffer_by_index(index),
-            pipe->pipeline,
-            pipe->pipelineLayout);
-    
+
+
     return commandBuffer;
 }
 

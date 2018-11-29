@@ -1,4 +1,5 @@
 #include <SDL.h>
+#include <zconf.h>
 
 #include "simple_logger.h"
 #include "gf3d_vgraphics.h"
@@ -68,6 +69,7 @@ int main(int argc,char *argv[])
         //update game things here
 
         entity_manager_update();
+        world_update();
 
         // configure render command for graphics command pool
         // for each mesh, get a command and configure it from the pool
@@ -75,9 +77,23 @@ int main(int argc,char *argv[])
         {
             commandBuffer = gf3d_command_rendering_begin(bufferFrame);
             {
+
+                gf3d_command_configure_render_pass(
+                        commandBuffer,
+                        gf3d_vgraphics_get_graphics_pipeline()->renderPass,
+                        gf3d_swapchain_get_frame_buffer_by_index(bufferFrame),
+                        gf3d_vgraphics_get_graphics_pipeline()->pipeline,
+                        gf3d_vgraphics_get_graphics_pipeline()->pipelineLayout);
                 entity_manager_draw(bufferFrame, commandBuffer);
+                world_render(commandBuffer, bufferFrame);
             }
             gf3d_command_rendering_end(commandBuffer);
+/*
+            commandBuffer = gf3d_command_rendering_begin(bufferFrame);
+            {
+
+            }
+            gf3d_command_rendering_end(commandBuffer);*/
         }
         gf3d_vgraphics_render_end(bufferFrame);
 

@@ -44,10 +44,12 @@ VkCommandBuffer * gf3d_command_pool_get_used_buffers(Command *com);
  */
 VkCommandBuffer gf3d_command_rendering_begin(Uint32 index);
 
+
 void gf3d_command_rendering_end(VkCommandBuffer commandBuffer);
 
 void gf3d_command_configure_render_pass_end(VkCommandBuffer commandBuffer);
 
+void gf3d_command_configure_render_pass(VkCommandBuffer commandBuffer, VkRenderPass renderPass,VkFramebuffer framebuffer,VkPipeline graphicsPipeline,VkPipelineLayout pipelineLayout);
 
 #endif
 
