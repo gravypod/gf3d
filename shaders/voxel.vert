@@ -13,10 +13,17 @@ out gl_PerVertex
 
 layout(location = 0) in vec3 inPosition;
 
+layout(location = 2) out mat4 mProjection;
+layout(location = 6) out mat4 mView;
+layout(location = 10) out mat4 mModel;
+
 void main()
 {
     mat4 identity = mat4(1.0f);
 
-    gl_Position = gubo.proj * gubo.view * identity * vec4(inPosition, 1.0);
+    gl_Position = /*gubo.proj * gubo.view * identity * */vec4(inPosition, 1.0);
+    mProjection = gubo.proj;
+    mView = gubo.view;
+    mModel = identity;
     //fragColor = vec4(1, 1, 1, 1.f);
 }

@@ -8,7 +8,7 @@
 
 #define CHUNK_X 16
 #define CHUNK_Y 16
-#define CHUNK_Z 16
+#define CHUNK_Z 255
 
 #define CHUNK_SIZE (CHUNK_X * CHUNK_Y * CHUNK_Z)
 

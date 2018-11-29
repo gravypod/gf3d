@@ -55,7 +55,7 @@ int main(int argc,char *argv[])
     world_init();
     //entity_manager_release(agumon1);
     //entity_manager_release(agumon2);
-
+    world_update();
     while(!done)
     {/*
         agumon1->rotation[2] += 0.001f;
@@ -69,7 +69,7 @@ int main(int argc,char *argv[])
         //update game things here
 
         entity_manager_update();
-        world_update();
+
 
         // configure render command for graphics command pool
         // for each mesh, get a command and configure it from the pool

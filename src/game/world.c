@@ -102,9 +102,9 @@ void world_buffer(gpu_block *world_block_views, uint32_t *num_blocks, VkDeviceSi
         for (int block_idx = 0; block_idx < CHUNK_SIZE; block_idx++) {
 
             // No block is here
-            /*if (world.chunks[chunk_idx].blocks[block_idx] == 0) {
+            if (world.chunks[chunk_idx].blocks[block_idx] == 0) {
                 continue;
-            } */
+            }
 
             blocks++;
 
@@ -112,12 +112,12 @@ void world_buffer(gpu_block *world_block_views, uint32_t *num_blocks, VkDeviceSi
             long x, y, z;
             world_chunk_world_index(block_idx, &x, &y, &z);
 
-            block->position[0] = 50.0f;// x;
-            block->position[1] = 1.0f; //y;
-            block->position[2] = 1.0f; //z;
+            block->position[0] = x + world.chunks[chunk_idx].major_x;
+            block->position[2] = y + world.chunks[chunk_idx].major_y;
+            block->position[1] = z;
         }
     }
-    *offset = blocks * sizeof(vec3);
+    *offset = blocks * sizeof(gpu_block);
     *num_blocks = blocks;
 }
 
@@ -167,7 +167,7 @@ void world_render(VkCommandBuffer buffer, Uint32 frame)
     );
 
     vkCmdBindVertexBuffers(buffer, 0, 1, &bound_block_buffer.buffer, &block_start_position);
-    vkCmdDraw(buffer, 1, 1, 0, 0);
+    vkCmdDraw(buffer, world_rendering.num_blocks, 1, 0, 0);
 }
 
 void world_rendering_descriptor_set_pool_create()
@@ -195,7 +195,7 @@ void world_graphics_create_descriptor_sets()
     VkDescriptorSetLayout *layouts = NULL;
     VkDescriptorSetAllocateInfo allocInfo = {0};
     VkDescriptorBufferInfo global_ubo_info = {0};
-    VkWriteDescriptorSet descriptorWrite[3] = {0};
+    VkWriteDescriptorSet descriptorWrite[1] = {0};
 
     layouts = (VkDescriptorSetLayout *) gf3d_allocate_array(sizeof(VkDescriptorSetLayout), gf3d_swapchain_get_swap_image_count());
     for (int i = 0; i < gf3d_swapchain_get_swap_image_count(); i++) {
@@ -235,8 +235,9 @@ void world_graphics_create_descriptor_sets()
 void world_graphics_descriptor_set_layout(VkDescriptorSetLayout *descriptorSetLayout)
 {
     static VkDescriptorSetLayoutCreateInfo layoutInfo = {0};
-    static VkDescriptorSetLayoutBinding bindings[2];
+    static VkDescriptorSetLayoutBinding bindings[1];
     memset(bindings, 0, sizeof(bindings));
+/*
 
     VkDescriptorSetLayoutBinding *ubo_instance_binding = &bindings[0];
     {
@@ -246,8 +247,9 @@ void world_graphics_descriptor_set_layout(VkDescriptorSetLayout *descriptorSetLa
         ubo_instance_binding->stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
         ubo_instance_binding->pImmutableSamplers = NULL; // Optional
     }
+*/
 
-    VkDescriptorSetLayoutBinding *ubo_global_binding = &bindings[1];
+    VkDescriptorSetLayoutBinding *ubo_global_binding = &bindings[0];
     {
         ubo_global_binding->binding = 0;
         ubo_global_binding->descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
@@ -257,7 +259,7 @@ void world_graphics_descriptor_set_layout(VkDescriptorSetLayout *descriptorSetLa
     }
 
     layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-    layoutInfo.bindingCount = 2;
+    layoutInfo.bindingCount = 1;
     layoutInfo.pBindings = bindings;
 
     if (vkCreateDescriptorSetLayout(gf3d_vgraphics_get_default_logical_device(), &layoutInfo, NULL, descriptorSetLayout) != VK_SUCCESS) {
@@ -289,7 +291,7 @@ void world_graphics_pipeline_init()
             vertexInputBindingDescription.stride = sizeof(gpu_block);
             vertexInputBindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
 
-            vertexInputStateCreateInfo.vertexBindingDescriptionCount = 0;
+            vertexInputStateCreateInfo.vertexBindingDescriptionCount = 1;
             vertexInputStateCreateInfo.pVertexBindingDescriptions = &vertexInputBindingDescription;
         }
 
@@ -298,7 +300,6 @@ void world_graphics_pipeline_init()
             // vec3 inPosition
             vertexInputAttributeDescription.offset = 0;
             vertexInputAttributeDescription.binding = 0;
-            vertexInputAttributeDescription.location = 0;
             vertexInputAttributeDescription.format = VK_FORMAT_R32G32B32_SFLOAT;
 
             vertexInputStateCreateInfo.vertexAttributeDescriptionCount = 1;
