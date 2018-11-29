@@ -133,11 +133,11 @@ void gf3d_vgraphics_init(
     
     gf3d_pipeline_init(4);
 
-    gf3d_vgraphics.pipe = gf3d_pipeline_graphics_load(device,"shaders/vert.spv","shaders/frag.spv",gf3d_vgraphics_get_view_extent());
+    gf3d_vgraphics.pipe = gf3d_pipeline_graphics_load(device,"shaders/default.vert.spv", NULL, "shaders/default.frag.spv",gf3d_vgraphics_get_view_extent());
     
     gf3d_command_system_init(8,device);
 
-    gf3d_vgraphics.graphicsCommandPool = gf3d_command_graphics_pool_setup(gf3d_swapchain_get_swap_image_count(),gf3d_vgraphics.pipe);
+    gf3d_vgraphics.graphicsCommandPool = gf3d_command_graphics_pool_setup(gf3d_swapchain_get_swap_image_count());
 
     gf3d_swapchain_create_depth_image();
     gf3d_swapchain_setup_frame_buffers(gf3d_vgraphics.pipe);    

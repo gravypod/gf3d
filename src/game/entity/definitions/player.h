@@ -3,6 +3,8 @@
 
 #include "../entity.h"
 
+extern entity_t *player_entity;
+
 /**
  * Initialize an player
  *

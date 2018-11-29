@@ -161,7 +161,14 @@ void gf3d_pipeline_render_pass_setup(Pipeline *pipe)
 }
 
 
-Pipeline *gf3d_pipeline_graphics_load(VkDevice device,char *vertFile,char *fragFile,VkExtent2D extent)
+Pipeline *gf3d_pipeline_graphics_load_preconfigured(
+        VkDevice device,
+        char *vertFile, char *geomFile, char *fragFile,
+        VkExtent2D extent,
+        VkPipelineVertexInputStateCreateInfo *vertexInputInfo,
+        VkPipelineInputAssemblyStateCreateInfo *inputAssembly,
+        VkDescriptorSetLayout *descriptorSetLayout
+)
 {
     Pipeline *pipe;
     VkRect2D scissor = {0};
@@ -170,76 +177,91 @@ Pipeline *gf3d_pipeline_graphics_load(VkDevice device,char *vertFile,char *fragF
     VkPipelineLayoutCreateInfo pipelineLayoutInfo = {0};
     VkPipelineViewportStateCreateInfo viewportState = {0};
     VkPipelineRasterizationStateCreateInfo rasterizer = {0};
-    VkPipelineShaderStageCreateInfo shaderStages[2];
-    VkPipelineShaderStageCreateInfo vertShaderStageInfo = {0};
-    VkPipelineShaderStageCreateInfo fragShaderStageInfo = {0};
-    VkPipelineVertexInputStateCreateInfo vertexInputInfo = {0};
-    VkPipelineInputAssemblyStateCreateInfo inputAssembly = {0};
+    VkPipelineShaderStageCreateInfo shaderStages[3];
+    uint32_t num_shader_stages = 0;
     VkPipelineMultisampleStateCreateInfo multisampling = {0};
     VkPipelineColorBlendAttachmentState colorBlendAttachment = {0};
     VkPipelineColorBlendStateCreateInfo colorBlending = {0};
     VkPipelineDepthStencilStateCreateInfo depthStencil = {0};
-    
+
     pipe = gf3d_pipeline_new();
     if (!pipe)return NULL;
 
-    pipe->vertShader = gf3d_shaders_load_data(vertFile,&pipe->vertSize);
-    pipe->fragShader = gf3d_shaders_load_data(fragFile,&pipe->fragSize);
-    
-    pipe->vertModule = gf3d_shaders_create_module(pipe->vertShader,pipe->vertSize,device);
-    pipe->fragModule = gf3d_shaders_create_module(pipe->fragShader,pipe->fragSize,device);
+    {
+        // Load shaders
+        if (vertFile) {
+            pipe->vertShader = gf3d_shaders_load_data(vertFile, &pipe->vertSize);
+            pipe->vertModule = gf3d_shaders_create_module(pipe->vertShader, pipe->vertSize, device);
+        }
+
+        if (geomFile) {
+            pipe->geomShader = gf3d_shaders_load_data(geomFile, &pipe->geomSize);
+            pipe->geomModule = gf3d_shaders_create_module(pipe->geomShader, pipe->geomSize, device);
+        }
+
+        if (fragFile) {
+            pipe->fragShader = gf3d_shaders_load_data(fragFile, &pipe->fragSize);
+            pipe->fragModule = gf3d_shaders_create_module(pipe->fragShader, pipe->fragSize, device);
+        }
+    }
 
     pipe->device = device;
-    
+
     depthStencil.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
     depthStencil.depthTestEnable = VK_TRUE;
     depthStencil.depthWriteEnable = VK_TRUE;
-    depthStencil.depthCompareOp = VK_COMPARE_OP_LESS;    
+    depthStencil.depthCompareOp = VK_COMPARE_OP_LESS;
     depthStencil.depthBoundsTestEnable = VK_FALSE;
     depthStencil.minDepthBounds = 0.0f; // Optional
     depthStencil.maxDepthBounds = 1.0f; // Optional
     depthStencil.stencilTestEnable = VK_FALSE;
 
-    vertShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-    vertShaderStageInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;
-    vertShaderStageInfo.module = pipe->vertModule;
-    vertShaderStageInfo.pName = "main";
-    
-    fragShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-    fragShaderStageInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
-    fragShaderStageInfo.module = pipe->fragModule;
-    fragShaderStageInfo.pName = "main";
-    
-    shaderStages[0] = vertShaderStageInfo;
-    shaderStages[1] = fragShaderStageInfo;
-    
-    vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-    vertexInputInfo.vertexBindingDescriptionCount = 1;
-    vertexInputInfo.pVertexBindingDescriptions = gf3d_mesh_get_bind_description();; // Optional
-    vertexInputInfo.pVertexAttributeDescriptions = gf3d_mesh_get_attribute_descriptions(&vertexInputInfo.vertexAttributeDescriptionCount); // Optional    
+    {
+        memset(shaderStages, 0, sizeof(shaderStages));
 
-    // TODO: pull all this information from config file
-    inputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
-    inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
-    inputAssembly.primitiveRestartEnable = VK_FALSE;
-    
+        // Load up shaders based on arguments
+        if (vertFile) {
+            VkPipelineShaderStageCreateInfo *info = &shaderStages[num_shader_stages++];
+            info->sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+            info->stage = VK_SHADER_STAGE_VERTEX_BIT;
+            info->module = pipe->vertModule;
+            info->pName = "main";
+        }
+
+        if (geomFile) {
+            VkPipelineShaderStageCreateInfo *info = &shaderStages[num_shader_stages++];
+            info->sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+            info->stage = VK_SHADER_STAGE_GEOMETRY_BIT;
+            info->module = pipe->geomModule;
+            info->pName = "main";
+        }
+
+        if (fragFile) {
+            VkPipelineShaderStageCreateInfo *info = &shaderStages[num_shader_stages++];
+            info->sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+            info->stage = VK_SHADER_STAGE_FRAGMENT_BIT;
+            info->module = pipe->fragModule;
+            info->pName = "main";
+        }
+    }
+
     viewport.x = 0.0f;
     viewport.y = 0.0f;
     viewport.width = (float) extent.width;
     viewport.height = (float) extent.height;
     viewport.minDepth = 0.0f;
     viewport.maxDepth = 1.0f;
-    
+
     scissor.offset.x = 0;
     scissor.offset.y = 0;
     scissor.extent = extent;
-    
+
     viewportState.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
     viewportState.viewportCount = 1;
     viewportState.pViewports = &viewport;
     viewportState.scissorCount = 1;
     viewportState.pScissors = &scissor;
-    
+
     rasterizer.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
     rasterizer.depthClampEnable = VK_FALSE;
     rasterizer.rasterizerDiscardEnable = VK_FALSE;
@@ -270,7 +292,7 @@ Pipeline *gf3d_pipeline_graphics_load(VkDevice device,char *vertFile,char *fragF
     colorBlendAttachment.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
     colorBlendAttachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
     colorBlendAttachment.alphaBlendOp = VK_BLEND_OP_ADD;
-    
+
     colorBlending.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
     colorBlending.logicOpEnable = VK_FALSE;
     colorBlending.logicOp = VK_LOGIC_OP_COPY; // Optional
@@ -283,24 +305,24 @@ Pipeline *gf3d_pipeline_graphics_load(VkDevice device,char *vertFile,char *fragF
 
     pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
     pipelineLayoutInfo.setLayoutCount = 1; // Optional
-    pipelineLayoutInfo.pSetLayouts = gf3d_model_get_descriptor_set_layout(); // Optional
+    pipelineLayoutInfo.pSetLayouts = descriptorSetLayout; // Optional
     pipelineLayoutInfo.pushConstantRangeCount = 0; // Optional
     pipelineLayoutInfo.pPushConstantRanges = NULL; // Optional
 
     gf3d_pipeline_render_pass_setup(pipe);
-    
+
     if (vkCreatePipelineLayout(device, &pipelineLayoutInfo, NULL, &pipe->pipelineLayout) != VK_SUCCESS)
     {
         slog("failed to create pipeline layout!");
         gf3d_pipeline_free(pipe);
         return NULL;
     }
-    
+
     pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
-    pipelineInfo.stageCount = 2;
+    pipelineInfo.stageCount = num_shader_stages;
     pipelineInfo.pStages = shaderStages;
-    pipelineInfo.pVertexInputState = &vertexInputInfo;
-    pipelineInfo.pInputAssemblyState = &inputAssembly;
+    pipelineInfo.pVertexInputState = vertexInputInfo;
+    pipelineInfo.pInputAssemblyState = inputAssembly;
     pipelineInfo.pViewportState = &viewportState;
     pipelineInfo.pRasterizationState = &rasterizer;
     pipelineInfo.pMultisampleState = &multisampling;
@@ -313,14 +335,37 @@ Pipeline *gf3d_pipeline_graphics_load(VkDevice device,char *vertFile,char *fragF
     pipelineInfo.basePipelineHandle = VK_NULL_HANDLE; // Optional
     pipelineInfo.basePipelineIndex = -1; // Optional
     pipelineInfo.pDepthStencilState = &depthStencil;
-    
+
     if (vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &pipelineInfo, NULL, &pipe->pipeline) != VK_SUCCESS)
-    {   
+    {
         slog("failed to create graphics pipeline!");
         gf3d_pipeline_free(pipe);
         return NULL;
     }
     return pipe;
+}
+
+Pipeline *gf3d_pipeline_graphics_load(VkDevice device, char *vertFile, char *geomFile, char *fragFile, VkExtent2D extent)
+{
+    VkPipelineVertexInputStateCreateInfo vertexInputInfo = {0};
+    VkPipelineInputAssemblyStateCreateInfo inputAssembly = {0};
+
+    vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
+    vertexInputInfo.vertexBindingDescriptionCount = 1;
+    vertexInputInfo.pVertexBindingDescriptions = gf3d_mesh_get_bind_description(); // Optional
+    vertexInputInfo.pVertexAttributeDescriptions = gf3d_mesh_get_attribute_descriptions(&vertexInputInfo.vertexAttributeDescriptionCount); // Optional    
+
+    // TODO: pull all this information from config file
+    inputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
+    inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+    inputAssembly.primitiveRestartEnable = VK_FALSE;
+
+    return gf3d_pipeline_graphics_load_preconfigured(
+            device,
+            vertFile, geomFile, fragFile,
+            extent,
+            &vertexInputInfo, &inputAssembly, gf3d_model_get_descriptor_set_layout()
+    );
 }
 
 void gf3d_pipeline_free(Pipeline *pipe)

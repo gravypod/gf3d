@@ -3,7 +3,7 @@
 #include <gf3d_swapchain.h>
 #include "player.h"
 
-
+entity_t *player_entity;
 gf3d_camera *camera;
 
 const float entity_player_speed_when_clicking(const entity_t *const entity, const bool positive, const bool negative)
@@ -65,6 +65,7 @@ void entity_player_init(entity_t *entity, void *metadata)
     entity->model = gf3d_model_load("agumon");
     entity->speed = 0.1f;
     camera = gf3d_camera_init(windowWidth, windowHeight, entity->position, entity->rotation);
+    player_entity = entity;
 }
 
 

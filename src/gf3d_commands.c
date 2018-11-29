@@ -85,7 +85,7 @@ void gf3d_command_free(Command *com)
 }
 
 
-Command * gf3d_command_graphics_pool_setup(Uint32 count,Pipeline *pipe)
+Command * gf3d_command_graphics_pool_setup(Uint32 count)
 {
     Command *com;
     VkCommandPoolCreateInfo poolInfo = {0};

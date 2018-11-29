@@ -10,6 +10,7 @@
 #include "entity/manager.h"
 #include "entity/definitions/agumon.h"
 #include "entity/definitions/player.h"
+#include "world.h"
 
 int main(int argc,char *argv[])
 {
@@ -50,6 +51,7 @@ int main(int argc,char *argv[])
     agumon1->scale[1] = 0.5f;
     agumon1->scale[2] = 0.5f;
 
+    world_init();
     //entity_manager_release(agumon1);
     //entity_manager_release(agumon2);
 
