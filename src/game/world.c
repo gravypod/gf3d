@@ -13,6 +13,9 @@
 
 Pipeline *pipeline_world;
 
+struct {
+    Texture *dirt_texture;
+} blocks;
 
 typedef struct {
     vec3 position;
@@ -172,14 +175,17 @@ void world_render(VkCommandBuffer buffer, Uint32 frame)
 
 void world_rendering_descriptor_set_pool_create()
 {
-    VkDescriptorPoolSize poolSize[1] = {0};
+    VkDescriptorPoolSize poolSize[2] = {0};
     VkDescriptorPoolCreateInfo poolInfo = {0};
     slog("attempting to make descriptor pools of size %i", gf3d_swapchain_get_swap_image_count());
     poolSize[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
     poolSize[0].descriptorCount = gf3d_swapchain_get_swap_image_count();
 
+    poolSize[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+    poolSize[1].descriptorCount = gf3d_swapchain_get_swap_image_count();
+
     poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-    poolInfo.poolSizeCount = 1;
+    poolInfo.poolSizeCount = 2;
     poolInfo.pPoolSizes = poolSize;
     poolInfo.maxSets = gf3d_swapchain_get_swap_image_count();
 
@@ -195,7 +201,8 @@ void world_graphics_create_descriptor_sets()
     VkDescriptorSetLayout *layouts = NULL;
     VkDescriptorSetAllocateInfo allocInfo = {0};
     VkDescriptorBufferInfo global_ubo_info = {0};
-    VkWriteDescriptorSet descriptorWrite[1] = {0};
+    VkWriteDescriptorSet descriptorWrite[2] = {0};
+    VkDescriptorImageInfo imageInfo = {0};
 
     layouts = (VkDescriptorSetLayout *) gf3d_allocate_array(sizeof(VkDescriptorSetLayout), gf3d_swapchain_get_swap_image_count());
     for (int i = 0; i < gf3d_swapchain_get_swap_image_count(); i++) {
@@ -214,6 +221,10 @@ void world_graphics_create_descriptor_sets()
     }
     world_rendering.descriptorSetCount = gf3d_swapchain_get_swap_image_count();
     for (int i = 0; i < gf3d_swapchain_get_swap_image_count(); i++) {
+        slog("updating descriptor sets");
+        imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+        imageInfo.imageView = blocks.dirt_texture->textureImageView;
+        imageInfo.sampler = blocks.dirt_texture->textureSampler;
 
         global_ubo_info.buffer = gf3d_vgraphics_get_global_uniform_buffer_manager()->ubo_buffers_buffer;
         global_ubo_info.offset = 0;
@@ -228,14 +239,24 @@ void world_graphics_create_descriptor_sets()
         descriptorWrite[0].pBufferInfo = &global_ubo_info;
         descriptorWrite[0].pNext = NULL;
 
-        vkUpdateDescriptorSets(gf3d_vgraphics_get_default_logical_device(), 1, descriptorWrite, 0, NULL);
+        descriptorWrite[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+        descriptorWrite[1].dstSet = world_rendering.descriptorSets[i];
+        descriptorWrite[1].dstBinding = 2;
+        descriptorWrite[1].dstArrayElement = 0;
+        descriptorWrite[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+        descriptorWrite[1].descriptorCount = 1;
+        descriptorWrite[1].pImageInfo = &imageInfo;
+        descriptorWrite[1].pTexelBufferView = NULL; // Optional
+        descriptorWrite[1].pNext = NULL;
+
+        vkUpdateDescriptorSets(gf3d_vgraphics_get_default_logical_device(), 2, descriptorWrite, 0, NULL);
     }
 }
 
 void world_graphics_descriptor_set_layout(VkDescriptorSetLayout *descriptorSetLayout)
 {
     static VkDescriptorSetLayoutCreateInfo layoutInfo = {0};
-    static VkDescriptorSetLayoutBinding bindings[1];
+    static VkDescriptorSetLayoutBinding bindings[2];
     memset(bindings, 0, sizeof(bindings));
 /*
 
@@ -258,8 +279,17 @@ void world_graphics_descriptor_set_layout(VkDescriptorSetLayout *descriptorSetLa
         ubo_global_binding->pImmutableSamplers = NULL; // Optional
     }
 
+    VkDescriptorSetLayoutBinding *block_texture_binding = &bindings[1];
+    {
+        block_texture_binding->binding = 2;
+        block_texture_binding->descriptorCount = 1;
+        block_texture_binding->descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+        block_texture_binding->pImmutableSamplers = NULL;
+        block_texture_binding->stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+    }
+
     layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-    layoutInfo.bindingCount = 1;
+    layoutInfo.bindingCount = 2;
     layoutInfo.pBindings = bindings;
 
     if (vkCreateDescriptorSetLayout(gf3d_vgraphics_get_default_logical_device(), &layoutInfo, NULL, descriptorSetLayout) != VK_SUCCESS) {
@@ -360,6 +390,7 @@ void world_graphics_init()
 
 void world_init()
 {
+    blocks.dirt_texture = gf3d_texture_load("images/blocks/grass.png");
     world_graphics_init();
     world_chunks_center();
 }
