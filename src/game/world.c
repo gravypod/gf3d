@@ -34,6 +34,15 @@ void world_render(VkCommandBuffer buffer, Uint32 frame)
     rendering_pipeline_world_renderpass(world.rendering, world.num_blocks, buffer, frame);
 }
 
+world_chunk_t *world_chunk_get(chunk_location *cl)
+{
+    for (size_t i = 0; i < MAX_NUM_LOADED_CHUNKS; i++) {
+        if (world.chunks[i]->location.x == cl->x && world.chunks[i]->location.z == cl->z)
+            return world.chunks[i];
+    }
+    return NULL;
+}
+
 void world_chunks_init()
 {
     for (long x = 0; x < MAX_NUM_LOADED_CHUNKS; x++) {
@@ -49,51 +58,33 @@ void world_init()
     world.rendering = rendering_pipeline_world_init(SIZE_WORLD_BLOCKS);
     world_chunks_init();
 }
-/*
 
-world_collision_result world_collision_check(vec3 center, float size_x, float size_y, float size_z)
+
+bool world_collision_check(const vec3 center, float x_radius, float y_radius, float z_radius)
 {
-    const box3d left = {
-            .bottom_back_left = {
-                    center[0] - size_x, center[1] - size_y, center[2] - size_z
-            },
-            .x_size = size_x * 2,
-            .y_size = size_y * 2,
-            .z_size = size_z * 2,
-    };
-    box3d right = {
-            .bottom_back_left = {
-                    0.0f, 0.0f, 0.0f
-            },
-            .x_size = 1.0f,
-            .y_size = 1.0f,
-            .z_size = 1.0f,
-    };
+    vec3 back_bottom_left = {center[0] - x_radius, center[1] - y_radius, center[2] - z_radius };
+    vec3 top_front_right  = {center[0] + x_radius, center[1] + y_radius, center[2] + z_radius };
 
-    for (long x = (long) floorf(left.bottom_back_left.x); x < (long) ceilf(left.bottom_back_left.x + left.x_size); x++) {
-        for (long y = (long) floorf(left.bottom_back_left.y); y < (long) ceilf(left.bottom_back_left.y + left.y_size); y++) {
-            for (long z = (long) floorf(left.bottom_back_left.z); z < (long) ceilf(left.bottom_back_left.z + left.z_size) && z > 0.0f; z++) {
+    for (long x = (long) back_bottom_left[0]; x < ceilf(top_front_right[0]); x++) {
+        for (long y = (long) back_bottom_left[1]; y < ceilf(top_front_right[1]); y++) {
+            for (long z = (long) back_bottom_left[2]; z < ceilf(top_front_right[2]); z++) {
+                location l = {
+                        x, y, z
+                };
+                chunk_location cl;
+                location_to_chunk_location(&l, &cl);
 
+                world_chunk_t *chunk = world_chunk_get(&cl);
 
-                right.bottom_back_left.x = x;
-                right.bottom_back_left.y = y;
-                right.bottom_back_left.z = z;
-
-                if (box3d_colliding(&left, &right)) {
-                    const chunk_t *c = world_chunk_get(&world, x, y);
-
-                    if (c) {
-
-                        const long block_idx = world_chunk_blocks_index(x, y, z);
-
-                        if (c->blocks[block_idx]) {
-                            return COLLISION;
-                        }
+                if (chunk) {
+                    if (world_chunk_location_exists(chunk, &l)) {
+                        return true;
                     }
+
                 }
             }
         }
     }
 
-    return NO_COLLISSION;
-}*/
+    return false;
+}

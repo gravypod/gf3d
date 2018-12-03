@@ -79,6 +79,10 @@ int main(int argc,char *argv[])
             printf("Player entered (%d, %d, %d)\n", lastX, lastY, lastZ);
         }
 
+        if (world_collision_check(player->position, 0.5f, 0.5f, 0.5f)) {
+            printf("Player colliding at (%d, %d, %d)\n", lastX, lastY, lastZ);
+        }
+
         // configure render command for graphics command pool
         // for each mesh, get a command and configure it from the pool
         bufferFrame = gf3d_vgraphics_render_begin();

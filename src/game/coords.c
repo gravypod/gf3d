@@ -20,6 +20,12 @@ void location_to_chunk_location(location *l, chunk_location *cl)
 {
     cl->x = l->x / SIZE_CHUNK_X;
     cl->z = l->z / SIZE_CHUNK_Z;
+
+    if (l->x < 0)
+        cl->x -= 1;
+
+    if (l->z < 0)
+        cl->z -= 1;
 }
 
 void location_from_chunk_block(chunk_location *cl, block_location *bl, location *l)

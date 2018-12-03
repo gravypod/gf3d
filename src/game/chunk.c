@@ -38,6 +38,22 @@ world_chunk_t *world_chunk_load(long seed, const chunk_location cl)
     return chunk;
 }
 
+bool world_chunk_block_location_exists(world_chunk_t *chunk, block_location *bl)
+{
+    if (bl->x >= SIZE_CHUNK_X || bl->y >= SIZE_CHUNK_Y || bl->z >= SIZE_CHUNK_Z || bl->z < 0.0f) {
+        return false;
+    }
+    long location = block_location_to_index(bl);
+    return chunk->blocks[location] != 0;
+}
+
+bool world_chunk_location_exists(world_chunk_t *chunk, location *l)
+{
+    block_location bl;
+    location_to_block_location(l, &bl);
+    return world_chunk_block_location_exists(chunk, &bl);
+}
+
 
 size_t world_chunk_gpu_serialize(world_chunk_t *chunk, gpublock *blocks)
 {
@@ -69,7 +85,7 @@ size_t world_chunk_gpu_serialize(world_chunk_t *chunk, gpublock *blocks)
                 block->position[1] = (float) l.y;
                 block->position[2] = (float) l.z;
 
-                if (bl.x == 0 && bl.y == 0 && bl.z == 0 ) {
+                if (bl.x == 0 && bl.y == 0 && bl.z == 0) {
                     int a;
                     a = 10;
                 }

@@ -3,6 +3,7 @@
 
 #include <stddef.h>
 #include <linmath.h>
+#include <stdbool.h>
 #include "coords.h"
 #include "rendering/world.h"
 
@@ -16,6 +17,8 @@ typedef struct
 
 
 world_chunk_t *world_chunk_load(long seed, chunk_location cl);
+bool world_chunk_block_location_exists(world_chunk_t *chunk, block_location *bl);
+bool world_chunk_location_exists(world_chunk_t *chunk, location *l);
 size_t world_chunk_gpu_serialize(world_chunk_t *chunk, gpublock *blocks);
 
 #endif
