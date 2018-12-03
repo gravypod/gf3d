@@ -24,6 +24,6 @@ typedef struct
 void world_init();
 void world_update();
 void world_render(VkCommandBuffer buffer, Uint32 frame);
-bool world_collision_check(const vec3 center, float size_x, float size_y, float size_z);
+bool world_collision_find(const vec3 center, float x_radius, float y_radius, float z_radius, location *blocking_block);
 
 #endif

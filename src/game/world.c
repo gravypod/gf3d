@@ -59,8 +59,7 @@ void world_init()
     world_chunks_init();
 }
 
-
-bool world_collision_check(const vec3 center, float x_radius, float y_radius, float z_radius)
+bool world_collision_find(const vec3 center, float x_radius, float y_radius, float z_radius, location *blocking_block)
 {
     vec3 back_bottom_left = {center[0] - x_radius, center[1] - y_radius, center[2] - z_radius };
     vec3 top_front_right  = {center[0] + x_radius, center[1] + y_radius, center[2] + z_radius };
@@ -78,6 +77,12 @@ bool world_collision_check(const vec3 center, float x_radius, float y_radius, fl
 
                 if (chunk) {
                     if (world_chunk_location_exists(chunk, &l)) {
+
+                        // Send block position to caller
+                        if (blocking_block != NULL) {
+                            memcpy(blocking_block, &l, sizeof(l));
+                        }
+
                         return true;
                     }
 

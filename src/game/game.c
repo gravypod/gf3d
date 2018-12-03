@@ -79,7 +79,7 @@ int main(int argc,char *argv[])
             printf("Player entered (%d, %d, %d)\n", lastX, lastY, lastZ);
         }
 
-        if (world_collision_check(player->position, 0.5f, 0.5f, 0.5f)) {
+        if (world_collision_find(player->position, 0.5f, 0.5f, 0.5f, NULL)) {
             printf("Player colliding at (%d, %d, %d)\n", lastX, lastY, lastZ);
         }
 
