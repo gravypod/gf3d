@@ -28,10 +28,10 @@ typedef struct {
     long x, y, z;
 } block_location;
 
-void location_to_block_location(location *l, block_location *bl);
+void location_to_block_location(const location *l, block_location *bl);
 
-long block_location_to_index(block_location *bl);
-void location_from_chunk_block(chunk_location *cl, block_location *bl, location *l);
-void location_to_chunk_location(location *l, chunk_location *cl);
+long block_location_to_index(const block_location *bl);
+void location_from_chunk_block(const chunk_location *cl, block_location *bl, location *l);
+void location_to_chunk_location(const location *l, chunk_location *cl);
 
 #endif

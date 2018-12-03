@@ -17,8 +17,8 @@ typedef struct
 
 
 world_chunk_t *world_chunk_load(long seed, chunk_location cl);
-bool world_chunk_block_location_exists(world_chunk_t *chunk, block_location *bl);
-bool world_chunk_location_exists(world_chunk_t *chunk, location *l);
-size_t world_chunk_gpu_serialize(world_chunk_t *chunk, gpublock *blocks);
+bool world_chunk_block_location_exists(const world_chunk_t *chunk, const block_location *bl);
+bool world_chunk_location_exists(const world_chunk_t *chunk, location *l);
+size_t world_chunk_gpu_serialize(const world_chunk_t *chunk, gpublock *blocks);
 
 #endif
