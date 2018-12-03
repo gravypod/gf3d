@@ -46,6 +46,7 @@ int main(int argc,char *argv[])
     entity_t *agumon1 = entity_manager_make(entity_agumon_init, NULL);
     //entity_t *agumon2 = entity_manager_make(entity_agumon_init, NULL);
 
+    int lastX = 0, lastY = 0, lastZ = 0;
     agumon1->position[0] = 50.0f;
 
     agumon1->scale[0] = 0.5f;
@@ -55,7 +56,8 @@ int main(int argc,char *argv[])
     world_init();
     //entity_manager_release(agumon1);
     //entity_manager_release(agumon2);
-    world_update();
+
+    unsigned char c = 0;
     while(!done)
     {/*
         agumon1->rotation[2] += 0.001f;
@@ -64,12 +66,18 @@ int main(int argc,char *argv[])
         agumon1->rotation[1] += 0.001f;
         //agumon2->rotation[1] -= 0.003f;*/
 
+        c++;
         SDL_PumpEvents();   // update SDL's internal event structures
         keys = SDL_GetKeyboardState(NULL); // get the keyboard state for this frame
         //update game things here
 
+        world_update();
         entity_manager_update();
 
+        if (lastX != (int) player->position[0]  || lastY != (int) player->position[1] || lastZ != (int) player->position[2]) {
+            lastX = (int) player->position[0]; lastY = (int) player->position[1]; lastZ = (int) player->position[2];
+            printf("Player entered (%d, %d, %d)\n", lastX, lastY, lastZ);
+        }
 
         // configure render command for graphics command pool
         // for each mesh, get a command and configure it from the pool
