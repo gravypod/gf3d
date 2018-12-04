@@ -66,7 +66,7 @@ size_t world_chunk_gpu_serialize(const world_chunk_t *chunk, gpublock *blocks)
         block_location *bl = &keep[i];
         location l;
 
-        // convert local location to world space location
+        // convert local location to world_entity space location
         location_from_chunk_block(&chunk->location, bl, &l);
 
         // Serialize block to GPU vector

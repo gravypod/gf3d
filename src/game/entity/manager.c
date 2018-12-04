@@ -1,7 +1,7 @@
 #include <malloc.h>
 #include "manager.h"
-#include "../world.h"
 #include <gf3d_collide.h>
+#include <gf3d_vgraphics.h>
 
 struct
 {
@@ -78,10 +78,10 @@ entity_t *entity_manager_take(entity_initializer_t initializer, void *metadata)
         entity = &entity_pool.entities[entity_pool.next_allocation_index++];
     }
 
-    entity->allocated = true;
-
     // Call initializer
+    entity_init_empty(entity, NULL);
     initializer(entity, metadata);
+    entity_post_init(entity);
 
     return entity;
 }

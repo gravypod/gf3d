@@ -72,12 +72,12 @@ typedef struct entity_struct
     /**
      * Called to free this entity.
      */
-    void (*free)(struct entity_struct *);
+    void (*free)(struct entity_struct *, void *);
 
     /**
      * Called to update this entity
      */
-    void (*update)(struct entity_struct *);
+    void (*update)(struct entity_struct *, void *);
 
     /**
      * Called when touching another entity
@@ -108,6 +108,12 @@ typedef void (*entity_consumer_t)(entity_t *, void *);
  * @param e - Entity to blank out
  */
 void entity_init_empty(entity_t *e, void *metadata);
+
+/**
+ * Post-init function for entities
+ * @param entity
+ */
+void entity_post_init(entity_t *entity);
 
 /**
  * Called when touching another entity

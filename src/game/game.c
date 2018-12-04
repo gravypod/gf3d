@@ -11,7 +11,7 @@
 #include "entity/manager.h"
 #include "entity/definitions/agumon.h"
 #include "entity/definitions/player.h"
-#include "world.h"
+#include <game/entity/definitions/world.h>
 
 int main(int argc,char *argv[])
 {
@@ -42,6 +42,7 @@ int main(int argc,char *argv[])
     
     // main game loop
     slog("gf3d main loop begin");
+    entity_t *world = entity_manager_make(entity_world_init, NULL);
     entity_t *player = entity_manager_make(entity_player_init, NULL);
     entity_t *agumon1 = entity_manager_make(entity_agumon_init, NULL);
     //entity_t *agumon2 = entity_manager_make(entity_agumon_init, NULL);
@@ -53,7 +54,6 @@ int main(int argc,char *argv[])
     agumon1->scale[1] = 0.5f;
     agumon1->scale[2] = 0.5f;
 
-    world_init();
     //entity_manager_release(agumon1);
     //entity_manager_release(agumon2);
 
@@ -71,7 +71,6 @@ int main(int argc,char *argv[])
         keys = SDL_GetKeyboardState(NULL); // get the keyboard state for this frame
         //update game things here
 
-        world_update();
         entity_manager_update();
 
         if (lastX != (int) player->position[0]  || lastY != (int) player->position[1] || lastZ != (int) player->position[2]) {
@@ -97,7 +96,6 @@ int main(int argc,char *argv[])
                         gf3d_vgraphics_get_graphics_pipeline()->pipeline,
                         gf3d_vgraphics_get_graphics_pipeline()->pipelineLayout);
                 entity_manager_draw(bufferFrame, commandBuffer);
-                world_render(commandBuffer, bufferFrame);
             }
             gf3d_command_rendering_end(commandBuffer);
 /*

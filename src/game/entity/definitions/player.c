@@ -60,9 +60,9 @@ void entity_player_touch(entity_t *self, entity_t *obj)
 
 void entity_player_init(entity_t *entity, void *metadata)
 {
-    entity->update = (void (*)(struct entity_struct *)) entity_player_update;
+    entity->update = entity_player_update;
     entity->touching = entity_player_touch;
-    entity->model = gf3d_model_load("agumon");
+    //entity->model = gf3d_model_load("agumon");
     entity->speed = 0.1f;
     entity->position[0] -= 1.0f;
     camera = gf3d_camera_init(windowWidth, windowHeight, entity->position, entity->rotation);
@@ -76,5 +76,4 @@ void entity_player_update(entity_t *entity, void *metadata)
     entity_player_rotation_movement_calculate(entity);
 
     gf3d_camera_update(camera);
-    //gf3d_camera_rotation_set(gf3d_vgraphics_get_camera(), entity->rotation);
 }

@@ -34,6 +34,10 @@ void rendering_pipeline_world_renderpass(rendering_pipeline_world *self, uint32_
 
     vkCmdBindVertexBuffers(buffer, 0, 1, &self->block_buffer.buffer, &block_start_position);
     vkCmdDraw(buffer, num_blocks, 1, 0, 0);
+
+
+    // Rebind old pipeline.
+    vkCmdBindPipeline(buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, gf3d_vgraphics_get_graphics_pipeline()->pipeline);
 }
 
 void rendering_pipeline_world_descriptor_set_pool_init(rendering_pipeline_world *self)
