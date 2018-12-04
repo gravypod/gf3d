@@ -73,7 +73,8 @@ void entity_world_update(entity_t *entity, void *metadata)
 
     for (int i = 0; i < MAX_NUM_LOADED_CHUNKS; i++) {
         if (world.chunks[i]) {
-            world.num_blocks += world_chunk_gpu_serialize(world.chunks[i], temp_block_buffer + world.num_blocks);
+            world_chunk_update(world.chunks[i]);
+            world.num_blocks += world_chunk_gpu_send(world.chunks[i], temp_block_buffer + world.num_blocks);
         }
     }
 

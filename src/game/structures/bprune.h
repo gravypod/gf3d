@@ -5,6 +5,6 @@
 #include <stddef.h>
 #include <stdbool.h>
 
-block_location *bprune_chunk(const world_chunk_t *chunk, size_t *num_blocks);
+size_t bprune_update_chunk_index(world_chunk_t *chunk);
 
 #endif

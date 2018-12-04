@@ -6,26 +6,23 @@ long bprune_xz_flat_coord(long x, long z)
     return x + (z * SIZE_CHUNK_X);
 }
 
-int *bprune_chunk_count_columns(const world_chunk_t *chunk)
+void bprune_update_chunk_count_columns(world_chunk_t *chunk)
 {
-    static int counts[SIZE_CHUNK_X * SIZE_CHUNK_Z];
-
     block_location bl;
     for (bl.x = 0; bl.x < SIZE_CHUNK_X; bl.x++) {
         for (bl.z = 0; bl.z < SIZE_CHUNK_Z; bl.z++) {
             long i = bprune_xz_flat_coord(bl.x, bl.z);
             // Reset counter
-            counts[i] = 0;
+            chunk->index.num_blocks_in_columns[i] = 0;
 
             for (bl.y = 0; bl.y < SIZE_CHUNK_Y; bl.y++) {
                 if (world_chunk_block_location_exists(chunk, &bl)) {
-                    counts[i] += 1;
+                    chunk->index.num_blocks_in_columns[i] += 1;
                 }
             }
         }
     }
 
-    return counts;
 }
 
 bool bprune_chunk_keep_block(const world_chunk_t *chunk, const block_location *bl)
@@ -65,28 +62,25 @@ bool bprune_chunk_keep_block(const world_chunk_t *chunk, const block_location *b
     return false;
 }
 
-block_location *bprune_chunk(const world_chunk_t *chunk, size_t *their_blocks)
+size_t bprune_update_chunk_index(world_chunk_t *chunk)
 {
-    static block_location keep[SIZE_CHUNK_BLOCKS];
-    const int *counts = bprune_chunk_count_columns(chunk);
+    bprune_update_chunk_count_columns(chunk);
 
 
     size_t blocks = 0;
     block_location bl;
     for (bl.x = 0; bl.x < SIZE_CHUNK_X; bl.x++) {
         for (bl.z = 0; bl.z < SIZE_CHUNK_Z; bl.z++) {
-            int remaining_blocks_in_column = counts[bprune_xz_flat_coord(bl.x, bl.z)];
+            int remaining_blocks_in_column = chunk->index.num_blocks_in_columns[bprune_xz_flat_coord(bl.x, bl.z)];
 
             for (bl.y = 0; (bl.y < SIZE_CHUNK_Y) && remaining_blocks_in_column > 0; bl.y++) {
                 if (bprune_chunk_keep_block(chunk, &bl)) {
-                    keep[blocks] = bl;
+                    chunk->rendering.visible_blocks[blocks++] = bl;
                 }
                 remaining_blocks_in_column -= 1;
-                blocks += 1;
             }
         }
     }
 
-    *their_blocks = blocks;
-    return keep;
+    return blocks;
 }

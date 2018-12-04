@@ -1,7 +1,48 @@
 #include <malloc.h>
 #include "chunk.h"
 #include "noise.h"
-#include "structures/bprune.h"
+#include <game/structures/bprune.h>
+
+
+void world_chunk_reindex(world_chunk_t *chunk)
+{
+    chunk->index.num_blocks = 0;
+    for (size_t i = 0; i < SIZE_CHUNK_BLOCKS; i++) {
+        if (chunk->blocks[i]) {
+            chunk->index.num_blocks += 1;
+        }
+    }
+
+    chunk->rendering.num_visible_blocks = bprune_update_chunk_index(chunk);
+}
+
+void world_chunk_reserialize(world_chunk_t *chunk)
+{
+    gpublock tmp;
+    location l;
+
+    for (size_t i = 0; i < chunk->rendering.num_visible_blocks; i++) {
+        // convert local location to world_entity space location
+        location_from_chunk_block(&chunk->location, &chunk->rendering.visible_blocks[i], &l);
+
+        // Set positions of tmp block
+        tmp.position[0] = (float) l.x;
+        tmp.position[1] = (float) l.y;
+        tmp.position[2] = (float) l.z;
+
+        // Send into serialization cache
+        memcpy(&chunk->rendering.serialized_blocks[i], &tmp, sizeof(tmp));
+    }
+}
+
+void world_chunk_update(world_chunk_t *chunk)
+{
+    if (chunk->tainted) {
+        world_chunk_reindex(chunk);
+        world_chunk_reserialize(chunk);
+        chunk->tainted = false;
+    }
+}
 
 world_chunk_t *world_chunk_allocate(const chunk_location cl)
 {
@@ -29,6 +70,7 @@ void world_chunk_generate(long seed, world_chunk_t *chunk)
             }
         }
     }
+    chunk->tainted = true;
 }
 
 world_chunk_t *world_chunk_load(long seed, const chunk_location cl)
@@ -56,26 +98,8 @@ bool world_chunk_location_exists(const world_chunk_t *chunk, location *l)
 }
 
 
-size_t world_chunk_gpu_serialize(const world_chunk_t *chunk, gpublock *blocks)
+size_t world_chunk_gpu_send(const world_chunk_t *chunk, gpublock *blocks)
 {
-    size_t num_blocks = 0;
-
-    block_location *keep = bprune_chunk(chunk, &num_blocks);
-
-    for (size_t i = 0; i < num_blocks; i++) {
-        block_location *bl = &keep[i];
-        location l;
-
-        // convert local location to world_entity space location
-        location_from_chunk_block(&chunk->location, bl, &l);
-
-        // Serialize block to GPU vector
-        gpublock *block = &blocks[i];
-
-        block->position[0] = (float) l.x;
-        block->position[1] = (float) l.y;
-        block->position[2] = (float) l.z;
-    }
-
-    return num_blocks;
+    memcpy(blocks, chunk->rendering.serialized_blocks, sizeof(gpublock) * chunk->rendering.num_visible_blocks);
+    return chunk->rendering.num_visible_blocks;
 }
