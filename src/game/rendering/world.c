@@ -6,12 +6,7 @@
 #include "world.h"
 #include <gf3d_texture.h>
 
-struct
-{
-    Texture *dirt_texture;
-} blocks = {
-        .dirt_texture = NULL
-};
+Texture *block_sheet = NULL;
 
 void rendering_pipeline_world_renderpass(rendering_pipeline_world *self, uint32_t num_blocks, VkCommandBuffer buffer, Uint32 frame)
 {
@@ -90,8 +85,8 @@ void rendering_pipeline_world_descriptor_set_init(rendering_pipeline_world *self
     for (int i = 0; i < gf3d_swapchain_get_swap_image_count(); i++) {
         slog("updating descriptor sets");
         imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-        imageInfo.imageView = blocks.dirt_texture->textureImageView;
-        imageInfo.sampler = blocks.dirt_texture->textureSampler;
+        imageInfo.imageView = block_sheet->textureImageView;
+        imageInfo.sampler = block_sheet->textureSampler;
 
         global_ubo_info.buffer = gf3d_vgraphics_get_global_uniform_buffer_manager()->ubo_buffers_buffer;
         global_ubo_info.offset = 0;
@@ -186,7 +181,7 @@ void world_graphics_pipeline_init(rendering_pipeline_world *self)
             // vec3 inPosition
             vertexInputAttributeDescription.offset = 0;
             vertexInputAttributeDescription.binding = 0;
-            vertexInputAttributeDescription.format = VK_FORMAT_R32G32B32_SFLOAT;
+            vertexInputAttributeDescription.format = VK_FORMAT_R32G32B32A32_SFLOAT;
 
             vertexInputStateCreateInfo.vertexAttributeDescriptionCount = 1;
             vertexInputStateCreateInfo.pVertexAttributeDescriptions = &vertexInputAttributeDescription;
@@ -256,8 +251,8 @@ void rendering_pipeline_world_block_data_submit(rendering_pipeline_world *self, 
 
 rendering_pipeline_world *rendering_pipeline_world_init(uint32_t num_blocks)
 {
-    if (!blocks.dirt_texture) {
-        blocks.dirt_texture = gf3d_texture_load("images/blocks/grass.png");
+    if (!block_sheet) {
+        block_sheet = gf3d_texture_load("images/bs.png");
     }
 
     rendering_pipeline_world *self = malloc(sizeof(rendering_pipeline_world));

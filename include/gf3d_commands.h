@@ -49,6 +49,11 @@ void gf3d_command_rendering_end(VkCommandBuffer commandBuffer);
 
 void gf3d_command_configure_render_pass_end(VkCommandBuffer commandBuffer);
 
+/**
+ * Begin a render pass in the given commandBuffer.
+ *
+ * @param commandBuffer - This buffer will be initialized with a render pass
+ */
 void gf3d_command_configure_render_pass(VkCommandBuffer commandBuffer, VkRenderPass renderPass,VkFramebuffer framebuffer,VkPipeline graphicsPipeline,VkPipelineLayout pipelineLayout);
 
 #endif

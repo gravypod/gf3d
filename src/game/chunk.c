@@ -22,13 +22,18 @@ void world_chunk_reserialize(world_chunk_t *chunk)
     location l;
 
     for (size_t i = 0; i < chunk->rendering.num_visible_blocks; i++) {
+        block_location *bl = &chunk->rendering.visible_blocks[i];
         // convert local location to world_entity space location
-        location_from_chunk_block(&chunk->location, &chunk->rendering.visible_blocks[i], &l);
+        location_from_chunk_block(&chunk->location, bl, &l);
+
+        long block_idx = block_location_to_index(bl);
+        char block_type = chunk->blocks[block_idx];
 
         // Set positions of tmp block
         tmp.position[0] = (float) l.x;
         tmp.position[1] = (float) l.y;
         tmp.position[2] = (float) l.z;
+        tmp.position[3] = (float) block_type;
 
         // Send into serialization cache
         memcpy(&chunk->rendering.serialized_blocks[i], &tmp, sizeof(tmp));
@@ -65,8 +70,10 @@ void world_chunk_generate(long seed, world_chunk_t *chunk)
                     continue;
                 }
 
+                const block_t * const block_type = noise_block_type(seed, bl.x, bl.y, bl.z);
+
                 long location = block_location_to_index(&bl);
-                chunk->blocks[location] = 1;
+                chunk->blocks[location] = block_type->id;
             }
         }
     }

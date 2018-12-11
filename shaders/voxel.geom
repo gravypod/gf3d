@@ -3,13 +3,15 @@
 #extension GL_ARB_separate_shader_objects : enable
 #extension GL_ARB_shading_language_420pack : enable
 
+#define NUM_BLOCKS 2.0f
+
 // Terrible but only resource: https://www.khronos.org/opengl/wiki/Geometry_Shader
 layout (points) in;
 layout (triangle_strip, max_vertices = 4*6) out; // 1 quad for each side of the qube
 
 layout(location = 1) out vec2 textureCoord;
-layout(location = 2) in mat4 PV[];
 
+layout(location = 2) in mat4 PV[];
 
 out gl_PerVertex {
     vec4 gl_Position;
@@ -139,9 +141,19 @@ vec2 positions_texture_bottom[] = {
  * Emit a point to the fragment shader. Attach all needed metadata and call EmitVertex()
  */
 void point(int instance, vec3 block_space_position, vec2 texture_coord) {
+    const vec4 original_position = gl_in[instance].gl_Position;
+    const float block_type = original_position.a;
     const float block_size = 1.f;
-    textureCoord = texture_coord;
-    gl_Position = PV[instance] * (gl_in[instance].gl_Position + vec4(block_size * block_space_position, 0.f));
+
+    // Modify texcoord
+    vec2 tc = texture_coord;
+    tc.x = (tc.x + (block_type - 1.0f)) / NUM_BLOCKS;
+
+    vec4 modified_position = vec4(original_position.x, original_position.y, original_position.z, 1.0f);
+
+    textureCoord = tc;
+    gl_Position = PV[instance] * (modified_position + vec4(block_size * block_space_position, 0.f));
+
     EmitVertex();
 }
 

@@ -35,6 +35,18 @@ void gf3d_pipeline_init();
 void gf3d_pipeline_free(Pipeline *pipe);
 
 
+/**
+ * Load a pipeline configured to work with the model/mesh rendering code that DJ originally provided.
+ * @param device - Provisioned device object
+ * @param vertFile - Vertex shader to be used. If NULL it is omitted.
+ * @param geomFile - Geometry shader to be used. If NULL it is omitted.
+ * @param fragFile - Fragment shader to be used. If NULL it is omitted.
+ * @param extent - Size of the screen to write to.
+ * @param vertexInputInfo - The rate and layout of the vertex input data going to vertFile.
+ * @param inputAssembly - Input layout for vertFile.
+ * @param descriptorSetLayout - Descriptor sets to attach to this pipeline.
+ * @return Pipeline* or NULL if failure. Check slog() output when this returns NULL for debug info.
+ */
 Pipeline *gf3d_pipeline_graphics_load_preconfigured(
         VkDevice device,
         char *vertFile, char *geomFile, char *fragFile,

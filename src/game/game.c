@@ -98,12 +98,6 @@ int main(int argc,char *argv[])
                 entity_manager_draw(bufferFrame, commandBuffer);
             }
             gf3d_command_rendering_end(commandBuffer);
-/*
-            commandBuffer = gf3d_command_rendering_begin(bufferFrame);
-            {
-
-            }
-            gf3d_command_rendering_end(commandBuffer);*/
         }
         gf3d_vgraphics_render_end(bufferFrame);
 
