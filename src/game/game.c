@@ -51,10 +51,6 @@ int main(int argc,char *argv[])
     int lastX = 0, lastY = 0, lastZ = 0, lastIsAbove = 0;
     agumon1->position[0] = 50.0f;
 
-    agumon1->scale[0] = 0.5f;
-    agumon1->scale[1] = 0.5f;
-    agumon1->scale[2] = 0.5f;
-
     //entity_manager_release(agumon1);
     //entity_manager_release(agumon2);
 

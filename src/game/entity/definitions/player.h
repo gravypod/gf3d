@@ -35,7 +35,7 @@ void entity_player_free(entity_t *entity, void *metadata);
  * @param e - Entity to draw
  * @param pass - Metadata about the current render pass that we are drawing
  */
-void entity_player_draw(entity_t *e, entity_render_pass_t *pass);
+void entity_player_draw(entity_t *entity, const entity_render_pass_t *const pass);
 
 
 #endif
