@@ -1,6 +1,8 @@
 #ifndef GF3D_COORDS_H
 #define GF3D_COORDS_H
 
+#include <linmath.h>
+
 #define SIZE_CHUNK_X  16
 #define SIZE_CHUNK_Y 255
 #define SIZE_CHUNK_Z  16
@@ -25,6 +27,14 @@ typedef struct {
 typedef struct {
     long x, y, z;
 } block_location;
+
+/**
+ * Convert a position to a location.
+ *
+ * @param position
+ * @param l
+ */
+void position_to_location(const vec3 position, location *l);
 
 /**
  * Take a World-Space location and convert it to a Block-Chunk-Space coordinate.

@@ -25,6 +25,13 @@ typedef struct
     VkCommandBuffer commandBuffer;
 } entity_render_pass_t;
 
+
+typedef struct
+{
+    float radius_x, radius_y, radius_z;
+    float offset_x, offset_y, offset_z;
+} entity_block_bounding_box_t;
+
 /**
  * Abstract definition of an entity
  */
@@ -34,6 +41,11 @@ typedef struct entity_struct
      * Unique ID for every entity
      */
     size_t id;
+
+    /**
+     * Voxel bounding box for entity
+     */
+    entity_block_bounding_box_t bb;
 
     /**
      * Movement speed of an entity

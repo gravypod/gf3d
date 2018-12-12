@@ -118,4 +118,13 @@ bool world_chunk_location_exists(const world_chunk_t *chunk, location *l);
  */
 size_t world_chunk_gpu_send(const world_chunk_t *chunk, gpublock *blocks);
 
+/**
+ * Get the height of the world at a given World-Space coordinate
+ *
+ * @param chunk - Chunk we are inspecting
+ * @param l - Location to check
+ * @return Height in number of blocks
+ */
+long world_chunk_height(const world_chunk_t *chunk, location *l);
+
 #endif
