@@ -53,6 +53,11 @@ typedef struct entity_struct
     float speed;
 
     /**
+     * Health points of entity
+     */
+    long health;
+
+    /**
      * The location in world space of the entity
      */
     vec3 position;

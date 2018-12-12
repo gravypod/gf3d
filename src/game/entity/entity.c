@@ -39,6 +39,8 @@ void entity_init_empty(entity_t *e, void *metadata)
 
     e->allocated = false;
 
+    e->health = 1;
+
     // Null out behavior
     e->model = NULL;
     e->draw = NULL;

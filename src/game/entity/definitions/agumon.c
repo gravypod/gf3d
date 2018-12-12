@@ -15,9 +15,9 @@ void entity_agumon_update(entity_t *entity, void *metadata)
 void entity_agumon_init(entity_t *entity, void *metadata)
 {
     const entity_block_bounding_box_t bb = {
-            .radius_x = 0.5f,
-            .radius_y = 0.5f,
-            .radius_z = 0.5f,
+            .radius_x = 1.0f,
+            .radius_y = 1.0f,
+            .radius_z = 1.0f,
 
             .offset_x = 0.5f,
             .offset_y = 0.5f,
@@ -41,5 +41,10 @@ void entity_agumon_init(entity_t *entity, void *metadata)
 
 void entity_agumon_touch(entity_t *entity, entity_t *them)
 {
-    printf("%zu colliding with %zu\n", entity->id, them->id);
+    if (them == player_entity) {
+        if (player_entity->health < 100) {
+            player_entity->health++;
+            printf("Adding player health (%li)\n", player_entity->health);
+        }
+    }
 }
