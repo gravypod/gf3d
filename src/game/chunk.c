@@ -70,7 +70,7 @@ void world_chunk_generate(long seed, world_chunk_t *chunk)
                     continue;
                 }
 
-                const block_t * const block_type = noise_block_type(seed, bl.x, bl.y, bl.z);
+                const block_t *const block_type = noise_block_type(seed, bl.x, bl.y, bl.z);
 
                 long location = block_location_to_index(&bl);
                 chunk->blocks[location] = block_type->id;
@@ -109,4 +109,18 @@ size_t world_chunk_gpu_send(const world_chunk_t *chunk, gpublock *blocks)
 {
     memcpy(blocks, chunk->rendering.serialized_blocks, sizeof(gpublock) * chunk->rendering.num_visible_blocks);
     return chunk->rendering.num_visible_blocks;
+}
+
+long world_chunk_height(const world_chunk_t *chunk, location *l)
+{
+    block_location bl;
+    location_to_block_location(l, &bl);
+
+    for (bl.y = SIZE_CHUNK_Y; bl.y >= 0; bl.y--) {
+        if (world_chunk_block_location_exists(chunk, &bl)) {
+            return bl.y;
+        }
+    }
+
+    return -1;
 }

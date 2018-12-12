@@ -30,6 +30,20 @@ world_chunk_t *world_chunk_get(chunk_location *cl)
     return NULL;
 }
 
+long world_height(location *l)
+{
+    chunk_location cl;
+    location_to_chunk_location(l, &cl);
+
+    world_chunk_t *c = world_chunk_get(&cl);
+
+    if (!c) {
+        return -1;
+    }
+
+    return world_chunk_height(c, l);
+}
+
 bool world_collision_find(const vec3 center, float x_radius, float y_radius, float z_radius, location *blocking_block)
 {
     vec3 back_bottom_left = {center[0] - x_radius, center[1] - y_radius, center[2] - z_radius };

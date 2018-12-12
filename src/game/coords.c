@@ -8,6 +8,12 @@ const array3d chunk_array_layout = {
         .size_z = SIZE_CHUNK_Z,
 };
 
+void position_to_location(const vec3 position, location *l)
+{
+    l->x = (long) position[0];
+    l->y = (long) position[1];
+    l->z = (long) position[2];
+}
 
 void location_to_block_location(const location *l, block_location *bl)
 {

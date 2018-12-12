@@ -1,7 +1,9 @@
 #include <gf3d_vgraphics.h>
 #include <gf3d_camera.h>
 #include <gf3d_swapchain.h>
+#include <game/coords.h>
 #include "player.h"
+#include "world.h"
 
 entity_t *player_entity;
 gf3d_camera *camera;
@@ -60,6 +62,17 @@ void entity_player_touch(entity_t *self, entity_t *obj)
 
 void entity_player_init(entity_t *entity, void *metadata)
 {
+    const entity_block_bounding_box_t bb = {
+            .radius_x = 0.5f,
+            .radius_y = 0.5f,
+            .radius_z = 0.5f,
+
+            .offset_x = 0.5f,
+            .offset_y = 3.0f,
+            .offset_z = 0.5f
+    };
+
+    entity->bb = bb;
     entity->update = entity_player_update;
     entity->touching = entity_player_touch;
     //entity->model = gf3d_model_load("agumon");

@@ -3,7 +3,7 @@
 bool noise_block_exists(long seed, long x, long y, long z)
 {
     // Chosen by random dice roll
-    if (y < x + z) {
+    if (y < 40) {
         return true;
     }
 

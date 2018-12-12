@@ -12,6 +12,7 @@
 #include "entity/definitions/agumon.h"
 #include "entity/definitions/player.h"
 #include <game/entity/definitions/world.h>
+#include <game/collisions/world.h>
 
 int main(int argc,char *argv[])
 {
@@ -47,7 +48,7 @@ int main(int argc,char *argv[])
     entity_t *agumon1 = entity_manager_make(entity_agumon_init, NULL);
     //entity_t *agumon2 = entity_manager_make(entity_agumon_init, NULL);
 
-    int lastX = 0, lastY = 0, lastZ = 0;
+    int lastX = 0, lastY = 0, lastZ = 0, lastIsAbove = 0;
     agumon1->position[0] = 50.0f;
 
     agumon1->scale[0] = 0.5f;
@@ -73,13 +74,11 @@ int main(int argc,char *argv[])
 
         entity_manager_update();
 
-        if (lastX != (int) player->position[0]  || lastY != (int) player->position[1] || lastZ != (int) player->position[2]) {
+        int isAbove = collisions_is_below_world(player);
+        if (lastX != (int) player->position[0]  || lastY != (int) player->position[1] || lastZ != (int) player->position[2] || isAbove != lastIsAbove) {
             lastX = (int) player->position[0]; lastY = (int) player->position[1]; lastZ = (int) player->position[2];
-            printf("Player entered (%d, %d, %d)\n", lastX, lastY, lastZ);
-        }
-
-        if (world_collision_find(player->position, 0.5f, 0.5f, 0.5f, NULL)) {
-            printf("Player colliding at (%d, %d, %d)\n", lastX, lastY, lastZ);
+            lastIsAbove = isAbove;
+            printf("Player entered (%d, %d, %d). Is above %d\n", lastX, lastY, lastZ, isAbove);
         }
 
         // configure render command for graphics command pool
