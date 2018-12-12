@@ -10,9 +10,12 @@
 #include "gf3d_texture.h"
 #include "entity/manager.h"
 #include "entity/definitions/agumon.h"
+#include "entity/definitions/badguy.h"
 #include "entity/definitions/player.h"
 #include <game/entity/definitions/world.h>
 #include <game/collisions/world.h>
+
+bool game_keep_running = true;
 
 int main(int argc,char *argv[])
 {
@@ -45,17 +48,17 @@ int main(int argc,char *argv[])
     slog("gf3d main loop begin");
     entity_t *world = entity_manager_make(entity_world_init, NULL);
     entity_t *player = entity_manager_make(entity_player_init, NULL);
-    entity_t *agumon1 = entity_manager_make(entity_agumon_init, NULL);
-    //entity_t *agumon2 = entity_manager_make(entity_agumon_init, NULL);
+    //entity_t *agumon1 = entity_manager_make(entity_agumon_init, NULL);
+    entity_t *badguy1 = entity_manager_make(entity_badguy_init, NULL);
 
     int lastX = 0, lastY = 0, lastZ = 0, lastIsAbove = 0;
-    agumon1->position[0] = 50.0f;
-
+    //agumon1->position[0] = 50.0f;
+    badguy1->position[0] = 50.0f;
     //entity_manager_release(agumon1);
     //entity_manager_release(agumon2);
 
     unsigned char c = 0;
-    while(!done)
+    while(!done && game_keep_running)
     {/*
         agumon1->rotation[2] += 0.001f;
         //agumon2->rotation[2] -= 0.003f;
