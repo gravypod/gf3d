@@ -49,11 +49,13 @@ int main(int argc,char *argv[])
     entity_t *world = entity_manager_make(entity_world_init, NULL);
     entity_t *player = entity_manager_make(entity_player_init, NULL);
     //entity_t *agumon1 = entity_manager_make(entity_agumon_init, NULL);
+
     entity_t *badguy1 = entity_manager_make(entity_badguy_init, NULL);
+    badguy1->position[0] = 50.0f;
 
     int lastX = 0, lastY = 0, lastZ = 0, lastIsAbove = 0;
     //agumon1->position[0] = 50.0f;
-    badguy1->position[0] = 50.0f;
+
     //entity_manager_release(agumon1);
     //entity_manager_release(agumon2);
 

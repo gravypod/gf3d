@@ -2,6 +2,8 @@
 #include <gf3d_camera.h>
 #include <gf3d_swapchain.h>
 #include <game/coords.h>
+#include <game/raytrace.h>
+#include <game/entity/manager.h>
 #include "player.h"
 #include "world.h"
 
@@ -21,10 +23,33 @@ const float entity_player_speed_when_clicking(const entity_t *const entity, cons
     return 0;
 }
 
-void entity_player_position_movement_calculate(entity_t *const entity)
-{
-    const Uint8 *key_states = SDL_GetKeyboardState(NULL);
 
+void entity_player_attack_entities(entity_t *self, float player_attack_distance, vec3 position, vec3 direction)
+{
+    const float attack_raytrace_step_size = 0.5f;
+    vec3 copy_position;
+    vec3 copy_direction;
+    memcpy(copy_position, position, sizeof(vec3));
+    memcpy(copy_direction, direction, sizeof(vec3));
+
+    entity_t *const contacted = raytrace_contacts_entity(self, attack_raytrace_step_size, &player_attack_distance, copy_position, copy_direction);
+    if (!contacted) {
+        return;
+    }
+
+    printf("Attacked!!! --- %zu\n", contacted->id);
+    contacted->health -= 1;
+
+    if (contacted->health > 0) {
+        return;
+    }
+
+    printf("Killed!!! --- %zu\n", contacted->id);
+    entity_manager_release(contacted);
+}
+
+void entity_player_position_movement_calculate(const Uint8 *key_states, entity_t *const entity)
+{
     // Keys we are listening to direction keys
     const bool w = key_states[SDL_SCANCODE_W]; // Forward
     const bool s = key_states[SDL_SCANCODE_S]; // Backward
@@ -86,10 +111,18 @@ void entity_player_init(entity_t *entity, void *metadata)
 
 void entity_player_update(entity_t *entity, void *metadata)
 {
-    entity_player_position_movement_calculate(entity);
+    const Uint8 *key_states = SDL_GetKeyboardState(NULL);
+    const bool is_player_attacking = key_states[SDL_SCANCODE_SPACE];
+
+    entity_player_position_movement_calculate(key_states, entity);
     entity_player_rotation_movement_calculate(entity);
 
     gf3d_camera_update(camera);
+
+    if (is_player_attacking) {
+        float max_distance = 20.0f;
+        entity_player_attack_entities(entity, max_distance, entity->position, camera->front);
+    }
 }
 
 void entity_player_draw(entity_t *entity, const entity_render_pass_t *const pass)

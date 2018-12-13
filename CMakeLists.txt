@@ -70,7 +70,8 @@ set(SOURCE_FILES
         src/game/entity/definitions/world.c src/game/entity/definitions/world.h
         src/game/block.c src/game/block.h src/game/collisions/world.c
         src/game/collisions/world.h src/game/game.h
-        src/game/entity/definitions/badguy.c src/game/entity/definitions/badguy.h)
+        src/game/entity/definitions/badguy.c src/game/entity/definitions/badguy.h
+        src/game/raytrace.c src/game/raytrace.h)
 
 include_directories(src/ include libs/include ${SDL2_INCLUDE_DIRS} ${SDL2IMAGE_INCLUDE_DIRS})
 add_executable(${PROJECT_NAME} ${SOURCE_FILES} ${GAME_SOURCE_FILES})

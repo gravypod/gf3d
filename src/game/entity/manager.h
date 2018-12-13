@@ -34,6 +34,18 @@ entity_t *entity_manager_take(entity_initializer_t initializer, void *metadata);
 void entity_manager_release(entity_t *entity);
 
 /**
+ * Incrementally iterate over the entities allocated within the entity pool. Modifies the entity pointer to contain
+ * entities. Only ever look at the value of *entity if this function returns true. Otherwise this will contain bad
+ * data.
+ *
+ * @param last_entity_index - Last index checked by this function. On first call you MUST pass 0.
+ * @param only_allocated - Only included allocated entities.
+ * @param entity - Pointer to pointer of entity.
+ * @return true if we find another entity. False if we didn't.
+ */
+bool entity_manager_iterate_generator(size_t *last_entity_index, bool only_allocated, entity_t **entity);
+
+/**
  * Run a function against every allocated entity
  * @param consumer
  * @param metadata - Data passed to the consumer in addition to the entity

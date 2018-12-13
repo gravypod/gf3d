@@ -87,6 +87,24 @@ entity_t *entity_manager_take(entity_initializer_t initializer, void *metadata)
 }
 
 
+bool entity_manager_iterate_generator(size_t *last_entity_index, bool only_allocated, entity_t **entity)
+{
+
+    while (*last_entity_index < entity_pool.next_allocation_index) {
+        *entity = &entity_pool.entities[*last_entity_index += 1];
+
+        if (only_allocated) {
+            if (!(*entity)->allocated) {
+                continue;
+            }
+        }
+
+        return true;
+    }
+
+    return false;
+}
+
 void entity_manager_for_each(entity_consumer_t consumer, void *metadata, bool only_allocated)
 {
     size_t remaining_freed_entities = entity_pool.freed_entities;
