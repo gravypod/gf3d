@@ -1,7 +1,9 @@
 #include "raytrace.h"
+#include "chunk.h"
 #include <stddef.h>
 #include <gf3d_collide.h>
 #include <game/entity/manager.h>
+#include <game/entity/definitions/world.h>
 
 bool raytrace_point_step(float step_size, float *max_distance, vec3 point, vec3 direction)
 {
@@ -38,4 +40,30 @@ entity_t *raytrace_contacts_entity(entity_t *source_entity, float step_size, flo
     }
 
     return NULL;
+}
+
+bool raytrace_contacts_block(location *location, float step_size, float *max_distance, vec3 point, vec3 direction)
+{
+    chunk_location cl;
+
+    while (raytrace_point_step(step_size, max_distance, point, direction)) {
+        location->x = (long) point[0];
+        location->y = (long) point[1];
+        location->z = (long) point[2];
+
+        location_to_chunk_location(location, &cl);
+        world_chunk_t *chunk = world_chunk_get(&cl);
+
+        if (!chunk) {
+            continue;
+        }
+
+        if (!world_chunk_location_exists(chunk, location)) {
+            continue;
+        }
+
+        return true;
+    }
+
+    return false;
 }
