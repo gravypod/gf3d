@@ -64,6 +64,9 @@ typedef struct
     world_chunk_index_t index;
     world_chunk_rendering_t rendering;
 
+    bool  file_previously_existed;
+    FILE* persistence;
+
     /**
      * Flat array of blocks used to represent a chunk state.
      */

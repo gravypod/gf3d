@@ -2,7 +2,43 @@
 #include "chunk.h"
 #include "noise.h"
 #include <game/structures/bprune.h>
+#include <sys/stat.h>
+#include <sys/mman.h>
+#include <fcntl.h>
+#include <simple_logger.h>
 
+void file_read_data(FILE *f, char *data, size_t num_bytes)
+{
+    fseek(f, 0, SEEK_SET);
+    while (num_bytes > 0) {
+        size_t read = fread(data, sizeof(char), num_bytes, f);
+        num_bytes -= read;
+        data += read;
+    }
+}
+
+void file_save_data(FILE *f, char *data, size_t num_bytes)
+{
+    fseek(f, 0, SEEK_SET);
+    while (num_bytes > 0) {
+        size_t written = fwrite(data, sizeof(char), num_bytes, f);
+        num_bytes -= written;
+        data += written;
+    }
+    fflush(f);
+}
+
+bool file_system_entry_exists(char *name)
+{
+    static struct stat chunk_folder_stats = {0};
+
+    // Chunk folder doesn't exist.
+    if (stat(name, &chunk_folder_stats) == -1) {
+        return false;
+    }
+
+    return true;
+}
 
 void world_chunk_reindex(world_chunk_t *chunk)
 {
@@ -40,19 +76,32 @@ void world_chunk_reserialize(world_chunk_t *chunk)
     }
 }
 
+void world_chunk_persist(world_chunk_t *chunk)
+{
+    if (!chunk->persistence) {
+        slog("Cannot persist a chunk. File was never opened.");
+        return;
+    }
+
+    file_save_data(chunk->persistence, chunk->blocks, SIZE_CHUNK_BLOCKS);
+}
+
 void world_chunk_update(world_chunk_t *chunk)
 {
     if (chunk->tainted) {
         world_chunk_reindex(chunk);
         world_chunk_reserialize(chunk);
+        world_chunk_persist(chunk);
         chunk->tainted = false;
     }
 }
 
 world_chunk_t *world_chunk_allocate(const chunk_location cl)
 {
+
     world_chunk_t *chunk = malloc(sizeof(world_chunk_t));
     chunk->location = cl;
+    chunk->persistence = NULL;
     return chunk;
 }
 
@@ -80,11 +129,55 @@ void world_chunk_generate(long seed, world_chunk_t *chunk)
     chunk->tainted = true;
 }
 
+void world_chunk_mmap_file(world_chunk_t *chunk, const chunk_location cl)
+{
+
+#define CHUNK_FOLDER_NAME "./chunks/"
+#define MAX_CHUNK_FILE_NAME_LENGTH 128
+
+    static bool has_created_folder = false;
+
+    // Attempt to make folder to hold them
+    if (!has_created_folder) {
+        // Chunk folder doesn't exist.
+        if (!file_system_entry_exists(CHUNK_FOLDER_NAME)) {
+            slog("Attempted to create chunks folder: %d", mkdir(CHUNK_FOLDER_NAME, 0700));
+        }
+        has_created_folder = true;
+    }
+
+    // Make file name
+    static char chunk_file_name[MAX_CHUNK_FILE_NAME_LENGTH];
+    sprintf(chunk_file_name, CHUNK_FOLDER_NAME "%li_%li.bin", cl.x, cl.z);
+
+    chunk->file_previously_existed = file_system_entry_exists(chunk_file_name);
+    chunk->persistence = fopen(chunk_file_name, "rwb+");
+    if (chunk->persistence) {
+        fseek(chunk->persistence, 0, SEEK_SET);
+    }
+}
+
+bool world_chunk_attempt_file_load(world_chunk_t *chunk, const chunk_location cl)
+{
+    if (chunk->persistence == NULL) {
+        return false;
+    }
+
+    if (chunk->file_previously_existed) {
+        file_read_data(chunk->persistence, chunk->blocks, SIZE_CHUNK_BLOCKS);
+        chunk->tainted = true;
+    }
+
+    return chunk->file_previously_existed;
+}
+
 world_chunk_t *world_chunk_load(long seed, const chunk_location cl)
 {
-    // TODO: Persist to disk
     world_chunk_t *chunk = world_chunk_allocate(cl);
-    world_chunk_generate(seed, chunk);
+    world_chunk_mmap_file(chunk, cl);
+    if (!world_chunk_attempt_file_load(chunk, cl)) {
+        world_chunk_generate(seed, chunk);
+    }
     return chunk;
 }
 
