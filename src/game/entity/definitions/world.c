@@ -21,6 +21,28 @@ typedef struct
 
 world_t world;
 
+long world_chunk_idx(const chunk_location *cl)
+{
+
+    for (size_t i = 0; i < MAX_NUM_LOADED_CHUNKS; i++) {
+        if (world.chunks[i] != NULL && world.chunks[i]->location.x == cl->x && world.chunks[i]->location.z == cl->z) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+world_chunk_t *world_chunk_get(const chunk_location *cl)
+{
+    long i = world_chunk_idx(cl);
+
+    if (i == -1) {
+        return NULL;
+    }
+
+    return world.chunks[i];
+}
+
 void world_make_sure_loaded(const chunk_location *cl)
 {
     if (world_chunk_get(cl)) {
@@ -35,14 +57,29 @@ void world_make_sure_loaded(const chunk_location *cl)
     }
 }
 
-world_chunk_t *world_chunk_get(const chunk_location *cl)
+void world_make_sure_unloaded(const chunk_location *cl)
 {
-    for (size_t i = 0; i < MAX_NUM_LOADED_CHUNKS; i++) {
-        if (world.chunks[i] != NULL && world.chunks[i]->location.x == cl->x && world.chunks[i]->location.z == cl->z)
-            return world.chunks[i];
+    long idx = world_chunk_idx(cl);
+    if (idx == -1)
+        return;
+
+    long last_idx = -1;
+    for (size_t i = (size_t) idx; i < MAX_NUM_LOADED_CHUNKS; i++) {
+        if (world.chunks[i] != NULL) {
+            last_idx = i;
+        }
     }
-    return NULL;
+
+    world_chunk_free(world.chunks[idx]);
+    if (last_idx == -1) {
+        world.chunks[idx] = NULL;
+    } else {
+        world.chunks[idx] = world.chunks[last_idx];
+        world.chunks[last_idx] = NULL;
+    }
+
 }
+
 
 long world_height(location *l)
 {
@@ -59,16 +96,60 @@ long world_height(location *l)
 }
 
 
+bool chunk_in_list(size_t num_list, chunk_location *required_chunk_locations, chunk_location *cl)
+{
+    for (size_t i = 0; i < num_list; i++) {
+        if (required_chunk_locations[i].x == cl->x && required_chunk_locations[i].z == cl->z) {
+            return true;
+        }
+    }
+    return false;
+}
+
+void world_unload_uneeded_chunks(size_t num_chunks, chunk_location *required_chunk_locations)
+{
+    static chunk_location freeable_locations[MAX_NUM_LOADED_CHUNKS];
+
+    size_t num_to_free = num_chunks;
+
+    for (size_t i = 0; i < num_chunks; i++) {
+        if (world_chunk_get(&required_chunk_locations[i])) {
+            num_to_free--;
+        }
+    }
+
+    size_t freeidx = 0;
+    for (size_t i = 0; i < MAX_NUM_LOADED_CHUNKS; i++) {
+        if (world.chunks[i]) {
+            if (!chunk_in_list(num_chunks, required_chunk_locations, &world.chunks[i]->location)) {
+                num_to_free--;
+                freeable_locations[freeidx++] = world.chunks[i]->location;
+            }
+        }
+    }
+
+    for (size_t i = 0; i < freeidx; i++) {
+        world_make_sure_unloaded(&freeable_locations[i]);
+    }
+}
+
 void entity_world_load_nearby_chunks(const chunk_location *center_chunk)
 {
+    static chunk_location required_chunk_locations[MAX_NUM_LOADED_CHUNKS];
+    size_t num_chunks = 0;
+
     for (long x = -3; x <= 3; x++) {
         for (long z = -3; z <= 3; z++) {
-            const chunk_location cl = {
-                    .x = center_chunk->x + x,
-                    .z = center_chunk->z + z,
-            };
-            world_make_sure_loaded(&cl);
+            chunk_location *cl = &required_chunk_locations[num_chunks++];
+            cl->x = center_chunk->x + x;
+            cl->z= center_chunk->z + z;
         }
+    }
+
+    world_unload_uneeded_chunks(num_chunks, required_chunk_locations);
+
+    for (size_t i = 0; i < num_chunks; i++) {
+        world_make_sure_loaded(&required_chunk_locations[i]);
     }
 }
 

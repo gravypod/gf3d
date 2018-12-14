@@ -130,4 +130,6 @@ size_t world_chunk_gpu_send(const world_chunk_t *chunk, gpublock *blocks);
  */
 long world_chunk_height(const world_chunk_t *chunk, location *l);
 
+void world_chunk_free(world_chunk_t *chunk);
+
 #endif

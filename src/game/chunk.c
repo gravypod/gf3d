@@ -227,3 +227,16 @@ long world_chunk_height(const world_chunk_t *chunk, location *l)
 
     return -1;
 }
+
+void world_chunk_free(world_chunk_t *chunk)
+{
+    if (!chunk)
+        return;
+
+    if (chunk->persistence) {
+        fclose(chunk->persistence);
+    }
+
+    slog("Chunk freed: (%il, %il)", chunk->location.x, chunk->location.z);
+    free(chunk);
+}
