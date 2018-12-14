@@ -131,7 +131,8 @@ void entity_player_init(entity_t *entity, void *metadata)
     entity->draw = entity_player_draw;
     entity->model = gf3d_model_load("agumon");
     entity->speed = 0.1f;
-    entity->position[0] -= 1.0f;
+    entity->position[0] = 100.0f;
+    entity->position[2] = 100.0f;
     camera = gf3d_camera_init(windowWidth, windowHeight, entity->position, entity->rotation);
     player_entity = entity;
 }
