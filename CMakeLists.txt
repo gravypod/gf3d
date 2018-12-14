@@ -31,6 +31,8 @@ add_custom_target(
         DEPENDS ${SPIRV_BINARY_FILES}
 )
 
+set(OPEN_SIMPLEX_NOISE_SOURCE libs/open-simplex-math-c/open-simplex-noise.c)
+include_directories(libs/open-simplex-math-c)
 
 set(ENGINE_LIBRARIES m vulkan ${SDL2_LIBRARIES} ${SDL2IMAGE_LIBRARIES} ${CMAKE_SOURCE_DIR}/libs/libsj.a)
 
@@ -74,7 +76,7 @@ set(SOURCE_FILES
         src/game/raytrace.c src/game/raytrace.h)
 
 include_directories(src/ include libs/include ${SDL2_INCLUDE_DIRS} ${SDL2IMAGE_INCLUDE_DIRS})
-add_executable(${PROJECT_NAME} ${SOURCE_FILES} ${GAME_SOURCE_FILES})
+add_executable(${PROJECT_NAME} ${OPEN_SIMPLEX_NOISE_SOURCE} ${SOURCE_FILES} ${GAME_SOURCE_FILES})
 
 target_link_libraries(${PROJECT_NAME} ${ENGINE_LIBRARIES})
 add_dependencies(${PROJECT_NAME} COMPILE_SHADERS)

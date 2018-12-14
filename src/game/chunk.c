@@ -6,6 +6,7 @@
 #include <sys/mman.h>
 #include <fcntl.h>
 #include <simple_logger.h>
+#include <errno.h>
 
 void file_read_data(FILE *f, char *data, size_t num_bytes)
 {
@@ -110,16 +111,18 @@ void world_chunk_generate(long seed, world_chunk_t *chunk)
     memset(chunk->blocks, 0, sizeof(char) * SIZE_CHUNK_BLOCKS);
 
     block_location bl;
+    location l;
     for (bl.x = 0; bl.x < SIZE_CHUNK_X; bl.x++) {
         for (bl.y = 0; bl.y < SIZE_CHUNK_Y; bl.y++) {
             for (bl.z = 0; bl.z < SIZE_CHUNK_Z; bl.z++) {
-                bool block_should_be_placed = noise_block_exists(seed, bl.x, bl.y, bl.z);
+                location_from_chunk_block(&chunk->location, &bl, &l);
+                bool block_should_be_placed = noise_block_exists(seed, l.x, l.y, l.z);
 
                 if (!block_should_be_placed && !(bl.x == 0 && bl.y == 0 && bl.z == 0)) {
                     continue;
                 }
 
-                const block_t *const block_type = noise_block_type(seed, bl.x, bl.y, bl.z);
+                const block_t *const block_type = noise_block_type(seed, l.x, l.y, l.z);
 
                 long location = block_location_to_index(&bl);
                 chunk->blocks[location] = block_type->id;
@@ -132,7 +135,7 @@ void world_chunk_generate(long seed, world_chunk_t *chunk)
 void world_chunk_mmap_file(world_chunk_t *chunk, const chunk_location cl)
 {
 
-#define CHUNK_FOLDER_NAME "./chunks/"
+#define CHUNK_FOLDER_NAME "chunks/"
 #define MAX_CHUNK_FILE_NAME_LENGTH 128
 
     static bool has_created_folder = false;
@@ -151,9 +154,16 @@ void world_chunk_mmap_file(world_chunk_t *chunk, const chunk_location cl)
     sprintf(chunk_file_name, CHUNK_FOLDER_NAME "%li_%li.bin", cl.x, cl.z);
 
     chunk->file_previously_existed = file_system_entry_exists(chunk_file_name);
-    chunk->persistence = fopen(chunk_file_name, "rwb+");
+
+    if (!chunk->file_previously_existed) {
+        chunk->persistence = fopen(chunk_file_name, "wb+");
+    } else {
+        chunk->persistence = fopen(chunk_file_name, "rb+");
+    }
     if (chunk->persistence) {
         fseek(chunk->persistence, 0, SEEK_SET);
+    } else {
+        slog("Failed to open chunk %s, %d\n", chunk_file_name, errno);
     }
 }
 

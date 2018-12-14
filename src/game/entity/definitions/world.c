@@ -110,7 +110,7 @@ void entity_world_init(entity_t *entity, void *metadata)
     entity->draw = entity_world_render;
 
 
-    world.seed = 10;
+    world.seed = 4353453;
     world.rendering = rendering_pipeline_world_init(SIZE_WORLD_BLOCKS);
 
     // Generate the first chunks
