@@ -14,6 +14,7 @@
 #include "entity/definitions/player.h"
 #include <game/entity/definitions/world.h>
 #include <game/collisions/world.h>
+#include <game/entity/definitions/ui.h>
 
 bool game_keep_running = true;
 
@@ -46,6 +47,8 @@ int main(int argc,char *argv[])
     
     // main game loop
     slog("gf3d main loop begin");
+    entity_t *ui = entity_manager_make(entity_ui_init, NULL);
+/*
     entity_t *world = entity_manager_make(entity_world_init, NULL);
     entity_t *player = entity_manager_make(entity_player_init, NULL);
     //entity_t *agumon1 = entity_manager_make(entity_agumon_init, NULL);
@@ -53,6 +56,7 @@ int main(int argc,char *argv[])
     entity_t *badguy1 = entity_manager_make(entity_badguy_init, NULL);
     badguy1->position[0] = player->position[0] + 50.0f;
     badguy1->position[2] = player->position[2] + 50.0f;
+*/
 
     int lastX = 0, lastY = 0, lastZ = 0, lastIsAbove = 0;
     //agumon1->position[0] = 1000.0f;
@@ -76,12 +80,12 @@ int main(int argc,char *argv[])
 
         entity_manager_update();
 
-        int isAbove = collisions_is_below_world(player);
+/*        int isAbove = collisions_is_below_world(player);
         if (lastX != (int) player->position[0]  || lastY != (int) player->position[1] || lastZ != (int) player->position[2] || isAbove != lastIsAbove) {
             lastX = (int) player->position[0]; lastY = (int) player->position[1]; lastZ = (int) player->position[2];
             lastIsAbove = isAbove;
             printf("Player entered (%d, %d, %d). Is above %d\n", lastX, lastY, lastZ, isAbove);
-        }
+        }*/
 
         // configure render command for graphics command pool
         // for each mesh, get a command and configure it from the pool
