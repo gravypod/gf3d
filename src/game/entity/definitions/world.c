@@ -1,4 +1,5 @@
 #include "world.h"
+#include "player.h"
 #include <game/rendering/world.h>
 #include <game/chunk.h>
 
@@ -20,15 +21,65 @@ typedef struct
 
 world_t world;
 
-
-world_chunk_t *world_chunk_get(chunk_location *cl)
+long world_chunk_idx(const chunk_location *cl)
 {
+
     for (size_t i = 0; i < MAX_NUM_LOADED_CHUNKS; i++) {
-        if (world.chunks[i]->location.x == cl->x && world.chunks[i]->location.z == cl->z)
-            return world.chunks[i];
+        if (world.chunks[i] != NULL && world.chunks[i]->location.x == cl->x && world.chunks[i]->location.z == cl->z) {
+            return i;
+        }
     }
-    return NULL;
+    return -1;
 }
+
+world_chunk_t *world_chunk_get(const chunk_location *cl)
+{
+    long i = world_chunk_idx(cl);
+
+    if (i == -1) {
+        return NULL;
+    }
+
+    return world.chunks[i];
+}
+
+void world_make_sure_loaded(const chunk_location *cl)
+{
+    if (world_chunk_get(cl)) {
+        return;
+    }
+
+    for (size_t i = 0; i < MAX_NUM_LOADED_CHUNKS; i++) {
+        if (world.chunks[i] == NULL) {
+            world.chunks[i] = world_chunk_load(world.seed, cl);
+            return;
+        }
+    }
+}
+
+void world_make_sure_unloaded(const chunk_location *cl)
+{
+    long idx = world_chunk_idx(cl);
+    if (idx == -1)
+        return;
+
+    long last_idx = -1;
+    for (size_t i = (size_t) idx; i < MAX_NUM_LOADED_CHUNKS; i++) {
+        if (world.chunks[i] != NULL) {
+            last_idx = i;
+        }
+    }
+
+    world_chunk_free(world.chunks[idx]);
+    if (last_idx == -1) {
+        world.chunks[idx] = NULL;
+    } else {
+        world.chunks[idx] = world.chunks[last_idx];
+        world.chunks[last_idx] = NULL;
+    }
+
+}
+
 
 long world_height(location *l)
 {
@@ -44,47 +95,79 @@ long world_height(location *l)
     return world_chunk_height(c, l);
 }
 
-bool world_collision_find(const vec3 center, float x_radius, float y_radius, float z_radius, location *blocking_block)
+
+bool chunk_in_list(size_t num_list, chunk_location *required_chunk_locations, chunk_location *cl)
 {
-    vec3 back_bottom_left = {center[0] - x_radius, center[1] - y_radius, center[2] - z_radius };
-    vec3 top_front_right  = {center[0] + x_radius, center[1] + y_radius, center[2] + z_radius };
+    for (size_t i = 0; i < num_list; i++) {
+        if (required_chunk_locations[i].x == cl->x && required_chunk_locations[i].z == cl->z) {
+            return true;
+        }
+    }
+    return false;
+}
 
-    for (long x = (long) back_bottom_left[0]; x < ceilf(top_front_right[0]); x++) {
-        for (long y = (long) back_bottom_left[1]; y < ceilf(top_front_right[1]); y++) {
-            for (long z = (long) back_bottom_left[2]; z < ceilf(top_front_right[2]); z++) {
-                location l = {
-                        x, y, z
-                };
-                chunk_location cl;
-                location_to_chunk_location(&l, &cl);
+void world_unload_uneeded_chunks(size_t num_chunks, chunk_location *required_chunk_locations)
+{
+    static chunk_location freeable_locations[MAX_NUM_LOADED_CHUNKS];
 
-                world_chunk_t *chunk = world_chunk_get(&cl);
+    size_t num_to_free = num_chunks;
 
-                if (chunk) {
-                    if (world_chunk_location_exists(chunk, &l)) {
+    for (size_t i = 0; i < num_chunks; i++) {
+        if (world_chunk_get(&required_chunk_locations[i])) {
+            num_to_free--;
+        }
+    }
 
-                        // Send block position to caller
-                        if (blocking_block != NULL) {
-                            memcpy(blocking_block, &l, sizeof(l));
-                        }
-
-                        return true;
-                    }
-
-                }
+    size_t freeidx = 0;
+    for (size_t i = 0; i < MAX_NUM_LOADED_CHUNKS; i++) {
+        if (world.chunks[i]) {
+            if (!chunk_in_list(num_chunks, required_chunk_locations, &world.chunks[i]->location)) {
+                num_to_free--;
+                freeable_locations[freeidx++] = world.chunks[i]->location;
             }
         }
     }
 
-    return false;
+    for (size_t i = 0; i < freeidx; i++) {
+        world_make_sure_unloaded(&freeable_locations[i]);
+    }
 }
 
+void entity_world_load_nearby_chunks(const chunk_location *center_chunk)
+{
+    static chunk_location required_chunk_locations[MAX_NUM_LOADED_CHUNKS];
+    size_t num_chunks = 0;
+
+    for (long x = -3; x <= 3; x++) {
+        for (long z = -3; z <= 3; z++) {
+            chunk_location *cl = &required_chunk_locations[num_chunks++];
+            cl->x = center_chunk->x + x;
+            cl->z= center_chunk->z + z;
+        }
+    }
+
+    world_unload_uneeded_chunks(num_chunks, required_chunk_locations);
+
+    for (size_t i = 0; i < num_chunks; i++) {
+        world_make_sure_loaded(&required_chunk_locations[i]);
+    }
+}
 
 void entity_world_update(entity_t *entity, void *metadata)
 {
     static gpublock temp_block_buffer[SIZE_WORLD_BLOCKS];
-    world.num_blocks = 0;
+    static chunk_location center;
 
+    location player_location = {
+            .x = (long) player_entity->position[0],
+            .y = (long) player_entity->position[1],
+            .z = (long) player_entity->position[2],
+    };
+
+    location_to_chunk_location(&player_location, &center);
+    entity_world_load_nearby_chunks(&center);
+
+    world.num_blocks = 0;
     for (int i = 0; i < MAX_NUM_LOADED_CHUNKS; i++) {
         if (world.chunks[i]) {
             world_chunk_update(world.chunks[i]);
@@ -112,12 +195,4 @@ void entity_world_init(entity_t *entity, void *metadata)
 
     world.seed = 4353453;
     world.rendering = rendering_pipeline_world_init(SIZE_WORLD_BLOCKS);
-
-    // Generate the first chunks
-    for (long x = 0; x < MAX_NUM_LOADED_CHUNKS; x++) {
-        const chunk_location cl = {
-                x, 0
-        };
-        world.chunks[x] = world_chunk_load(world.seed, cl);
-    }
 }

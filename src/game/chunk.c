@@ -97,11 +97,11 @@ void world_chunk_update(world_chunk_t *chunk)
     }
 }
 
-world_chunk_t *world_chunk_allocate(const chunk_location cl)
+world_chunk_t *world_chunk_allocate(const chunk_location *cl)
 {
 
     world_chunk_t *chunk = malloc(sizeof(world_chunk_t));
-    chunk->location = cl;
+    memcpy(&chunk->location, cl, sizeof(chunk_location));
     chunk->persistence = NULL;
     return chunk;
 }
@@ -132,7 +132,7 @@ void world_chunk_generate(long seed, world_chunk_t *chunk)
     chunk->tainted = true;
 }
 
-void world_chunk_mmap_file(world_chunk_t *chunk, const chunk_location cl)
+void world_chunk_mmap_file(world_chunk_t *chunk, const chunk_location *cl)
 {
 
 #define CHUNK_FOLDER_NAME "chunks/"
@@ -151,7 +151,7 @@ void world_chunk_mmap_file(world_chunk_t *chunk, const chunk_location cl)
 
     // Make file name
     static char chunk_file_name[MAX_CHUNK_FILE_NAME_LENGTH];
-    sprintf(chunk_file_name, CHUNK_FOLDER_NAME "%li_%li.bin", cl.x, cl.z);
+    sprintf(chunk_file_name, CHUNK_FOLDER_NAME "%li_%li.bin", cl->x, cl->z);
 
     chunk->file_previously_existed = file_system_entry_exists(chunk_file_name);
 
@@ -167,7 +167,7 @@ void world_chunk_mmap_file(world_chunk_t *chunk, const chunk_location cl)
     }
 }
 
-bool world_chunk_attempt_file_load(world_chunk_t *chunk, const chunk_location cl)
+bool world_chunk_attempt_file_load(world_chunk_t *chunk)
 {
     if (chunk->persistence == NULL) {
         return false;
@@ -181,11 +181,11 @@ bool world_chunk_attempt_file_load(world_chunk_t *chunk, const chunk_location cl
     return chunk->file_previously_existed;
 }
 
-world_chunk_t *world_chunk_load(long seed, const chunk_location cl)
+world_chunk_t *world_chunk_load(long seed, const chunk_location *cl)
 {
     world_chunk_t *chunk = world_chunk_allocate(cl);
     world_chunk_mmap_file(chunk, cl);
-    if (!world_chunk_attempt_file_load(chunk, cl)) {
+    if (!world_chunk_attempt_file_load(chunk)) {
         world_chunk_generate(seed, chunk);
     }
     return chunk;
@@ -226,4 +226,17 @@ long world_chunk_height(const world_chunk_t *chunk, location *l)
     }
 
     return -1;
+}
+
+void world_chunk_free(world_chunk_t *chunk)
+{
+    if (!chunk)
+        return;
+
+    if (chunk->persistence) {
+        fclose(chunk->persistence);
+    }
+
+    slog("Chunk freed: (%il, %il)", chunk->location.x, chunk->location.z);
+    free(chunk);
 }

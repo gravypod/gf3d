@@ -91,7 +91,7 @@ void world_chunk_update(world_chunk_t *chunk);
  * @param cl - The location of the chunk in chunk-space.
  * @return world_chunk_t* with chunk data or NULL on error.
  */
-world_chunk_t *world_chunk_load(long seed, chunk_location cl);
+world_chunk_t *world_chunk_load(long seed, const chunk_location *cl);
 
 /**
  * Check to see if a chunk has a block at a given location.
@@ -129,5 +129,7 @@ size_t world_chunk_gpu_send(const world_chunk_t *chunk, gpublock *blocks);
  * @return Height in number of blocks
  */
 long world_chunk_height(const world_chunk_t *chunk, location *l);
+
+void world_chunk_free(world_chunk_t *chunk);
 
 #endif
