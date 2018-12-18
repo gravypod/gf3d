@@ -110,13 +110,12 @@ void rendering_pipeline_ui_descriptor_set_init(rendering_pipeline_ui_t *self)
 
     VkDescriptorSetLayout *layouts = NULL;
     VkDescriptorSetAllocateInfo allocInfo = {0};
-    VkDescriptorBufferInfo global_ubo_info = {0};
     VkWriteDescriptorSet descriptorWrite[1] = {0};
     VkDescriptorImageInfo imageInfo = {0};
 
     layouts = (VkDescriptorSetLayout *) gf3d_allocate_array(sizeof(VkDescriptorSetLayout), gf3d_swapchain_get_swap_image_count());
     for (int i = 0; i < gf3d_swapchain_get_swap_image_count(); i++) {
-        memcpy(&layouts[i], gf3d_model_get_descriptor_set_layout(), sizeof(VkDescriptorSetLayout));
+        memcpy(&layouts[i], &self->descriptorSetLayout, sizeof(VkDescriptorSetLayout));
     }
 
     allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
@@ -135,10 +134,6 @@ void rendering_pipeline_ui_descriptor_set_init(rendering_pipeline_ui_t *self)
         imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
         imageInfo.imageView = ui_texture->textureImageView;
         imageInfo.sampler = ui_texture->textureSampler;
-
-        global_ubo_info.buffer = gf3d_vgraphics_get_global_uniform_buffer_manager()->ubo_buffers_buffer;
-        global_ubo_info.offset = 0;
-        global_ubo_info.range = gf3d_vgraphics_get_global_uniform_buffer_manager()->size_ubo;
 
         descriptorWrite[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
         descriptorWrite[0].dstSet = self->descriptorSets[i];
