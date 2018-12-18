@@ -14,12 +14,12 @@ Texture *ui_texture = NULL;
 
 
 vec2 screen_coordinates[NUM_SCREEN_COORDINATES] = {
-        {/* positions */ /*-0.5f, -0.5f,*/ /* texcoords */ 0.0f, 0.0f},
-        {/* positions */ /* 0.5f, -0.5f,*/ /* texcoords */ 1.0f, 0.0f},
-        {/* positions */ /* 0.5f,  0.5f,*/ /* texcoords */ 1.0f, 1.0f},
-        {/* positions */ /* 0.5f,  0.5f,*/ /* texcoords */ 1.0f, 1.0f},
-        {/* positions */ /*-0.5f,  0.5f,*/ /* texcoords */ 0.0f, 1.0f},
-        {/* positions */ /*-0.5f, -0.5f,*/ /* texcoords */ 0.0f, 0.0f},
+        {/* positions */ /*-0.5f, -0.5f,*/ /* texcoords */ -0.1f, -0.1f},
+        {/* positions */ /* 0.5f, -0.5f,*/ /* texcoords */ 0.1f, -0.1f},
+        {/* positions */ /* 0.5f,  0.5f,*/ /* texcoords */ 0.1f, 0.1f},
+        {/* positions */ /* 0.5f,  0.5f,*/ /* texcoords */ 0.1f, 0.1f},
+        {/* positions */ /*-0.5f,  0.5f,*/ /* texcoords */ -0.1f, 0.1f},
+        {/* positions */ /*-0.5f, -0.5f,*/ /* texcoords */ -0.1f, -0.1f},
 };
 
 void rendering_pipeline_ui_buffer_allocate(rendering_pipeline_ui_t *self)
@@ -65,42 +65,19 @@ void rendering_pipeline_ui_buffer_init(rendering_pipeline_ui_t *self)
 void rendering_pipeline_ui_renderpass(rendering_pipeline_ui_t *self, VkCommandBuffer buffer, Uint32 frame)
 {
     const VkDescriptorSet *descriptorSet = &self->descriptorSets[frame];
-    const uint32_t dynamic_offsets[1] = {
-            gf3d_uniforms_reference_offset_get(gf3d_vgraphics_get_global_uniform_buffer_manager(), 0, frame)
-    };
-    VkDeviceSize vertex_buffer_offset = 0;
 
     vkCmdBindPipeline(buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, self->pipeline->pipeline);
 
-    vkCmdBindDescriptorSets(
-            buffer,
-            VK_PIPELINE_BIND_POINT_GRAPHICS,
-            self->pipeline->pipelineLayout,
-            0,
-            1, descriptorSet,
-            1, dynamic_offsets
-    );
+        vkCmdBindDescriptorSets(
+                buffer,
+                VK_PIPELINE_BIND_POINT_GRAPHICS,
+                self->pipeline->pipelineLayout,
+                0,
+                1, descriptorSet,
+                0, NULL
+        );
 
-
-    VkViewport viewport = {};
-    viewport.height = (float) self->screen_height - 10 ;
-    viewport.width = (float) self->screen_width - 10 ;
-    viewport.minDepth = (float) 0.0f;
-    viewport.maxDepth = (float) 1.0f;
-    viewport.x = 10;
-    viewport.y = 10;
-    vkCmdSetViewport(buffer, 0, 1, &viewport);
-
-    VkRect2D scissor = {};
-    scissor.extent.width = self->screen_width - 10 ;
-    scissor.extent.height = self->screen_height - 10 ;
-    scissor.offset.x = 10;
-    scissor.offset.y = 10;
-    vkCmdSetScissor(buffer, 0, 1, &scissor);
-
-
-    vkCmdBindVertexBuffers(buffer, 0, 1, &self->screenspace.buffer, &vertex_buffer_offset);
-    vkCmdDraw(buffer, NUM_SCREEN_COORDINATES, 1, 0, 0);
+        vkCmdDraw(buffer, 3, 1, 0, 0);
 
 
     // Rebind old pipeline.
@@ -110,17 +87,15 @@ void rendering_pipeline_ui_renderpass(rendering_pipeline_ui_t *self, VkCommandBu
 void rendering_pipeline_ui_descriptor_set_pool_init(rendering_pipeline_ui_t *self)
 {
 
-    VkDescriptorPoolSize poolSize[2] = {0};
+    VkDescriptorPoolSize poolSize[1] = {0};
     VkDescriptorPoolCreateInfo poolInfo = {0};
     slog("attempting to make descriptor pools of size %i", gf3d_swapchain_get_swap_image_count());
-    poolSize[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
+
+    poolSize[0].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
     poolSize[0].descriptorCount = gf3d_swapchain_get_swap_image_count();
 
-    poolSize[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-    poolSize[1].descriptorCount = gf3d_swapchain_get_swap_image_count();
-
     poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-    poolInfo.poolSizeCount = 2;
+    poolInfo.poolSizeCount = 1;
     poolInfo.pPoolSizes = poolSize;
     poolInfo.maxSets = gf3d_swapchain_get_swap_image_count();
 
@@ -191,21 +166,12 @@ void rendering_pipeline_ui_descriptor_set_init(rendering_pipeline_ui_t *self)
 void rendering_pipeline_ui_graphics_descriptor_set_layout(VkDescriptorSetLayout *descriptorSetLayout)
 {
     static VkDescriptorSetLayoutCreateInfo layoutInfo = {0};
-    static VkDescriptorSetLayoutBinding bindings[2];
+    static VkDescriptorSetLayoutBinding bindings[1];
     memset(bindings, 0, sizeof(bindings));
 
-    VkDescriptorSetLayoutBinding *ubo_global_binding = &bindings[0];
+    VkDescriptorSetLayoutBinding *block_texture_binding = &bindings[0];
     {
-        ubo_global_binding->binding = 0;
-        ubo_global_binding->descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
-        ubo_global_binding->descriptorCount = 1;
-        ubo_global_binding->stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
-        ubo_global_binding->pImmutableSamplers = NULL; // Optional
-    }
-
-    VkDescriptorSetLayoutBinding *block_texture_binding = &bindings[1];
-    {
-        block_texture_binding->binding = 2;
+        block_texture_binding->binding = 1;
         block_texture_binding->descriptorCount = 1;
         block_texture_binding->descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
         block_texture_binding->pImmutableSamplers = NULL;
@@ -213,7 +179,7 @@ void rendering_pipeline_ui_graphics_descriptor_set_layout(VkDescriptorSetLayout 
     }
 
     layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-    layoutInfo.bindingCount = 2;
+    layoutInfo.bindingCount = 1;
     layoutInfo.pBindings = bindings;
 
     if (vkCreateDescriptorSetLayout(gf3d_vgraphics_get_default_logical_device(), &layoutInfo, NULL, descriptorSetLayout) != VK_SUCCESS) {
@@ -225,15 +191,10 @@ void rendering_pipeline_ui_graphics_descriptor_set_layout(VkDescriptorSetLayout 
 
 void rendering_pipeline_graphics_ui_init(rendering_pipeline_ui_t *self)
 {
-
-    static VkVertexInputBindingDescription vertexInputBindingDescription;
-    static VkVertexInputAttributeDescription vertexInputAttributeDescription;
     static VkPipelineVertexInputStateCreateInfo vertexInputStateCreateInfo;
     static VkPipelineInputAssemblyStateCreateInfo inputAssemblyStateCreateInfo;
 
     slog("UI Graphics: Clearing Data Structures... ");
-    memset(&vertexInputBindingDescription, 0, sizeof(vertexInputBindingDescription));
-    memset(&vertexInputAttributeDescription, 0, sizeof(vertexInputAttributeDescription));
     memset(&vertexInputStateCreateInfo, 0, sizeof(vertexInputStateCreateInfo));
     memset(&inputAssemblyStateCreateInfo, 0, sizeof(inputAssemblyStateCreateInfo));
 
@@ -243,30 +204,22 @@ void rendering_pipeline_graphics_ui_init(rendering_pipeline_ui_t *self)
         // Vertex Input Binding Description
         {
             // Voxel point
-            vertexInputBindingDescription.binding = 0;
-            vertexInputBindingDescription.stride = sizeof(vec2);
-            vertexInputBindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
-
-            vertexInputStateCreateInfo.vertexBindingDescriptionCount = 1;
-            vertexInputStateCreateInfo.pVertexBindingDescriptions = &vertexInputBindingDescription;
+            vertexInputStateCreateInfo.vertexBindingDescriptionCount = 0;
+            vertexInputStateCreateInfo.pVertexBindingDescriptions = NULL;
         }
 
         // Vertex Input Attribute Description
         {
-            // vec3 inPosition
-            vertexInputAttributeDescription.offset = 0;
-            vertexInputAttributeDescription.binding = 0;
-            vertexInputAttributeDescription.format = VK_FORMAT_R32G32B32A32_SFLOAT;
 
-            vertexInputStateCreateInfo.vertexAttributeDescriptionCount = 1;
-            vertexInputStateCreateInfo.pVertexAttributeDescriptions = &vertexInputAttributeDescription;
+            vertexInputStateCreateInfo.vertexAttributeDescriptionCount = 0;
+            vertexInputStateCreateInfo.pVertexAttributeDescriptions = NULL;
         }
     }
 
     slog("UI Graphics: Configuring... VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO");
     inputAssemblyStateCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
     {
-        inputAssemblyStateCreateInfo.topology = VK_PRIMITIVE_TOPOLOGY_POINT_LIST;
+        inputAssemblyStateCreateInfo.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
         inputAssemblyStateCreateInfo.primitiveRestartEnable = VK_FALSE;
     }
 

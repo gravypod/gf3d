@@ -48,11 +48,12 @@ int main(int argc,char *argv[])
     // main game loop
     slog("gf3d main loop begin");
     entity_t *ui = entity_manager_make(entity_ui_init, NULL);
-/*
+
     entity_t *world = entity_manager_make(entity_world_init, NULL);
     entity_t *player = entity_manager_make(entity_player_init, NULL);
     //entity_t *agumon1 = entity_manager_make(entity_agumon_init, NULL);
 
+    /*
     entity_t *badguy1 = entity_manager_make(entity_badguy_init, NULL);
     badguy1->position[0] = player->position[0] + 50.0f;
     badguy1->position[2] = player->position[2] + 50.0f;
