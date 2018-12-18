@@ -4,6 +4,11 @@
 
 rendering_pipeline_ui_t *pipeline_ui;
 
+SDL_Surface *surface;
+SDL_Renderer *renderer;
+int lastPosition = 0;
+Texture *interface_texture ;
+
 SDL_Surface *entity_ui_sdl_surface_init(uint32_t width, uint32_t height)
 {
     Uint32 rmask, gmask, bmask, amask;
@@ -30,24 +35,34 @@ SDL_Surface *entity_ui_sdl_surface_init(uint32_t width, uint32_t height)
     );
 }
 
-SDL_Surface *entity_ui_sdl_init()
+void entity_ui_sdl_render_sceen_clear()
 {
-    SDL_Surface *surface = entity_ui_sdl_surface_init(
+    // Set everything to clear
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
+    SDL_RenderClear(renderer);
+}
+
+void entity_ui_sdl_create()
+{
+    surface = entity_ui_sdl_surface_init(
             gf3d_vgraphics_get_view_extent().width,
             gf3d_vgraphics_get_view_extent().height
     );
 
 
     // Setup renderer
-    SDL_Renderer *renderer = SDL_CreateSoftwareRenderer(surface);
+    renderer = SDL_CreateSoftwareRenderer(surface);
 
-    // Set everything to clear
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
-    SDL_RenderClear(renderer);
+    interface_texture = gf3d_texture_surface_create(surface);
+}
+
+void entity_ui_sdl_draw()
+{
+    entity_ui_sdl_render_sceen_clear();
 
     // Creat a rect at pos ( 50, 50 ) that's 50 pixels wide and 50 pixels high.
     SDL_Rect r;
-    r.x = 50;
+    r.x = lastPosition;
     r.y = 50;
     r.w = 50;
     r.h = 50;
@@ -60,8 +75,23 @@ SDL_Surface *entity_ui_sdl_init()
 
     // Render the rect to the screen
     SDL_RenderPresent(renderer);
+}
 
-    return surface;
+void entity_ui_update(entity_t *entity, void *metadata)
+{
+    static int lastUpdate = 10;
+    if (lastPosition > surface->w) {
+        lastPosition = 0;
+    }
+
+    lastPosition++;
+
+    if (lastUpdate >= 10) {
+        entity_ui_sdl_draw();
+        gf3d_texture_surface_update(interface_texture, surface);
+        lastUpdate = 0;
+    }
+    lastUpdate++;
 }
 
 void entity_ui_draw(entity_t *entity, const entity_render_pass_t *pass)
@@ -71,9 +101,12 @@ void entity_ui_draw(entity_t *entity, const entity_render_pass_t *pass)
 
 void entity_ui_init(entity_t *entity, void *metadata)
 {
-    Texture *interface_texture = gf3d_texture_surface_create(entity_ui_sdl_init());
+    entity_ui_sdl_create();
+    entity_ui_sdl_draw();
+
     pipeline_ui = rendering_pipeline_ui_init(
             interface_texture, (uint32_t) windowWidth, (uint32_t) windowHeight
     );
     entity->draw = entity_ui_draw;
+    entity->update = entity_ui_update;
 }

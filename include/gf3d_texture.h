@@ -25,7 +25,21 @@ typedef struct
 
 
 void gf3d_texture_init(Uint32 max_textures);
+
+/**
+ * Create a GF3D texture from a SDL surface.
+ * @param texture_surface - Surface to use in the texture
+ * @return Pointer to Texture or NULL if error
+ */
 Texture *gf3d_texture_surface_create(SDL_Surface *texture_surface);
+
+/**
+ * Update the texture data contained in the GPU for a given Texture object
+ * @param texture - Pointer to a Texture to update
+ * @param texture_surface - Pointer to an SDL_Surface to use as an image.
+ */
+void gf3d_texture_surface_update(Texture *texture, SDL_Surface *texture_surface);
+
 Texture *gf3d_texture_load(char *filename);
 void gf3d_texture_free(Texture *tex);
 

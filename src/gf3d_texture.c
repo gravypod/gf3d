@@ -283,6 +283,26 @@ void gf3d_texture_transfer_surface_to_buffer(Texture *texture, SDL_Surface *surf
     SDL_UnlockSurface(surface);
 }
 
+void gf3d_texture_surface_update(Texture *texture, SDL_Surface *texture_surface)
+{
+    SDL_Surface *surface = texture_surface;
+
+    // Make sure `surface` is the right pixel format
+    if (surface->format->format != SDL_PIXELFORMAT_ABGR8888) {
+        surface = SDL_ConvertSurfaceFormat(surface, SDL_PIXELFORMAT_ABGR8888, 0);
+    }
+
+    // Copy texture data into staging buffer
+    gf3d_texture_transfer_surface_to_buffer(texture, surface);
+    gf3d_texture_copy_staging_buffer_over_image_buffer(texture, true);
+
+
+    // Free the surface if there was a conversion
+    if (surface != texture_surface) {
+        SDL_FreeSurface(surface);
+    }
+}
+
 Texture *gf3d_texture_surface_create(SDL_Surface *texture_surface)
 {
     Texture *texture = gf3d_texture_new();

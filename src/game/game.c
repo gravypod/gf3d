@@ -81,12 +81,12 @@ int main(int argc,char *argv[])
 
         entity_manager_update();
 
-/*        int isAbove = collisions_is_below_world(player);
+        int isAbove = collisions_is_below_world(player);
         if (lastX != (int) player->position[0]  || lastY != (int) player->position[1] || lastZ != (int) player->position[2] || isAbove != lastIsAbove) {
             lastX = (int) player->position[0]; lastY = (int) player->position[1]; lastZ = (int) player->position[2];
             lastIsAbove = isAbove;
             printf("Player entered (%d, %d, %d). Is above %d\n", lastX, lastY, lastZ, isAbove);
-        }*/
+        }
 
         // configure render command for graphics command pool
         // for each mesh, get a command and configure it from the pool
