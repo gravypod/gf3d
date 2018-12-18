@@ -111,7 +111,7 @@ void rendering_pipeline_ui_descriptor_set_init(rendering_pipeline_ui_t *self)
     VkDescriptorSetLayout *layouts = NULL;
     VkDescriptorSetAllocateInfo allocInfo = {0};
     VkDescriptorBufferInfo global_ubo_info = {0};
-    VkWriteDescriptorSet descriptorWrite[2] = {0};
+    VkWriteDescriptorSet descriptorWrite[1] = {0};
     VkDescriptorImageInfo imageInfo = {0};
 
     layouts = (VkDescriptorSetLayout *) gf3d_allocate_array(sizeof(VkDescriptorSetLayout), gf3d_swapchain_get_swap_image_count());
@@ -142,24 +142,15 @@ void rendering_pipeline_ui_descriptor_set_init(rendering_pipeline_ui_t *self)
 
         descriptorWrite[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
         descriptorWrite[0].dstSet = self->descriptorSets[i];
-        descriptorWrite[0].dstBinding = 0;
+        descriptorWrite[0].dstBinding = 2;
         descriptorWrite[0].dstArrayElement = 0;
-        descriptorWrite[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
+        descriptorWrite[0].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
         descriptorWrite[0].descriptorCount = 1;
-        descriptorWrite[0].pBufferInfo = &global_ubo_info;
+        descriptorWrite[0].pImageInfo = &imageInfo;
+        descriptorWrite[0].pTexelBufferView = NULL; // Optional
         descriptorWrite[0].pNext = NULL;
 
-        descriptorWrite[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-        descriptorWrite[1].dstSet = self->descriptorSets[i];
-        descriptorWrite[1].dstBinding = 2;
-        descriptorWrite[1].dstArrayElement = 0;
-        descriptorWrite[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-        descriptorWrite[1].descriptorCount = 1;
-        descriptorWrite[1].pImageInfo = &imageInfo;
-        descriptorWrite[1].pTexelBufferView = NULL; // Optional
-        descriptorWrite[1].pNext = NULL;
-
-        vkUpdateDescriptorSets(gf3d_vgraphics_get_default_logical_device(), 2, descriptorWrite, 0, NULL);
+        vkUpdateDescriptorSets(gf3d_vgraphics_get_default_logical_device(), 1, descriptorWrite, 0, NULL);
     }
 }
 
