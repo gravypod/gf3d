@@ -77,7 +77,7 @@ void rendering_pipeline_ui_renderpass(rendering_pipeline_ui_t *self, VkCommandBu
                 0, NULL
         );
 
-        vkCmdDraw(buffer, 3, 1, 0, 0);
+        vkCmdDraw(buffer, 4, 1, 0, 0);
 
 
     // Rebind old pipeline.
@@ -219,7 +219,7 @@ void rendering_pipeline_graphics_ui_init(rendering_pipeline_ui_t *self)
     slog("UI Graphics: Configuring... VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO");
     inputAssemblyStateCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
     {
-        inputAssemblyStateCreateInfo.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+        inputAssemblyStateCreateInfo.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP;
         inputAssemblyStateCreateInfo.primitiveRestartEnable = VK_FALSE;
     }
 
