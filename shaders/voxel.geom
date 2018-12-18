@@ -7,7 +7,10 @@
 
 // Terrible but only resource: https://www.khronos.org/opengl/wiki/Geometry_Shader
 layout (points) in;
-layout (triangle_strip, max_vertices = 4*6) out; // 1 quad for each side of the qube
+layout (invocations = 6) in;
+
+layout (triangle_strip, max_vertices = 4) out; // 1 quad for each side of the qube
+
 
 layout(location = 1) out vec2 textureCoord;
 
@@ -143,42 +146,50 @@ vec2 positions_texture_bottom[] = {
 void point(int instance, vec3 block_space_position, vec2 texture_coord) {
     const vec4 original_position = gl_in[instance].gl_Position;
     const float block_type = original_position.a;
-    const float block_size = 1.f;
+    const float block_size = 1.0f;
+    const vec3 block_offset = block_size * block_space_position;
+    const vec4 modified_position = vec4(original_position.xyz + block_offset, 1.0f);
 
-    // Modify texcoord
-    vec2 tc = texture_coord;
-    tc.x = (tc.x + (block_type - 1.0f)) / NUM_BLOCKS;
-
-    vec4 modified_position = vec4(original_position.x, original_position.y, original_position.z, 1.0f);
-
-    textureCoord = tc;
-    gl_Position = PV[instance] * (modified_position + vec4(block_size * block_space_position, 0.f));
+    textureCoord = vec2((texture_coord.x + (block_type - 1.0f)) / 2.0f,  texture_coord.y);
+    gl_Position =   PV[instance] * modified_position;
 
     EmitVertex();
 }
 
 void quad(int instance, vec3 quadCoords[4], vec2 textureCoords[4])
 {
-    for (int i = 0; i < 4; i++)
-	{
-	    point(instance, quadCoords[i], textureCoords[i]);
-    }
+	    point(instance, quadCoords[0], textureCoords[0]);
+	    point(instance, quadCoords[1], textureCoords[1]);
+	    point(instance, quadCoords[2], textureCoords[2]);
+	    point(instance, quadCoords[3], textureCoords[3]);
     EndPrimitive();
 }
+
+vec3 positions[][] = {
+    positions_top,
+    positions_side_back,
+    positions_side_front,
+    positions_side_left,
+    positions_side_right,
+    positions_bottom
+};
+
+vec2 positions_textures[][] = {
+    positions_texture_top,
+    positions_texture_side_back,
+    positions_texture_side_front,
+    positions_texture_side_left,
+    positions_texture_side_right,
+    positions_texture_bottom
+};
+
+
 
 void main(void)
 {
 
 	for(int i = 0; i < gl_in.length(); i++)
 	{
-		quad(i, positions_top, positions_texture_top);
-
-		quad(i, positions_side_back, positions_texture_side_back);
-		quad(i, positions_side_front, positions_texture_side_front);
-
-		quad(i, positions_side_left, positions_texture_side_left);
-		quad(i, positions_side_right, positions_texture_side_right);
-
-		quad(i, positions_bottom, positions_texture_bottom);
+		quad(i, positions[gl_InvocationID], positions_textures[gl_InvocationID]);
     }
 }
