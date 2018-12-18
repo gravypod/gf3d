@@ -137,7 +137,7 @@ void rendering_pipeline_ui_descriptor_set_init(rendering_pipeline_ui_t *self)
 
         descriptorWrite[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
         descriptorWrite[0].dstSet = self->descriptorSets[i];
-        descriptorWrite[0].dstBinding = 2;
+        descriptorWrite[0].dstBinding = 1;
         descriptorWrite[0].dstArrayElement = 0;
         descriptorWrite[0].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
         descriptorWrite[0].descriptorCount = 1;
