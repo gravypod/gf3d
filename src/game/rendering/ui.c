@@ -8,59 +8,6 @@
 #include <gf3d_texture.h>
 #include <gf3d_model.h>
 
-Texture *ui_texture = NULL;
-
-#define NUM_SCREEN_COORDINATES 6
-
-
-vec2 screen_coordinates[NUM_SCREEN_COORDINATES] = {
-        {/* positions */ /*-0.5f, -0.5f,*/ /* texcoords */ -0.1f, -0.1f},
-        {/* positions */ /* 0.5f, -0.5f,*/ /* texcoords */ 0.1f, -0.1f},
-        {/* positions */ /* 0.5f,  0.5f,*/ /* texcoords */ 0.1f, 0.1f},
-        {/* positions */ /* 0.5f,  0.5f,*/ /* texcoords */ 0.1f, 0.1f},
-        {/* positions */ /*-0.5f,  0.5f,*/ /* texcoords */ -0.1f, 0.1f},
-        {/* positions */ /*-0.5f, -0.5f,*/ /* texcoords */ -0.1f, -0.1f},
-};
-
-void rendering_pipeline_ui_buffer_allocate(rendering_pipeline_ui_t *self)
-{
-    self->screenspace.size = NUM_SCREEN_COORDINATES * sizeof(vec2);
-    gf3d_vgraphics_create_buffer(
-            self->screenspace.size,
-
-            // Memory information
-            VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
-            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-
-            // Buffer information
-            &self->screenspace.buffer,
-            &self->screenspace.memory
-    );
-}
-
-void rendering_pipeline_ui_buffer_init(rendering_pipeline_ui_t *self)
-{
-    rendering_pipeline_ui_buffer_allocate(self);
-    void *mapped_memory = NULL;
-
-    vkMapMemory(gf3d_vgraphics_get_default_logical_device(), self->screenspace.memory, 0, self->screenspace.size, 0, &mapped_memory);
-    {
-
-        memcpy(mapped_memory, screen_coordinates, self->screenspace.size);
-
-        const VkMappedMemoryRange memory_range = {
-                .sType = VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE,
-                .size = self->screenspace.size, // TODO take limits into account. size,
-                .offset = 0,
-                .memory = self->screenspace.memory,
-                .pNext = 0
-        };
-        vkFlushMappedMemoryRanges(gf3d_vgraphics_get_default_logical_device(), 1, &memory_range);
-    }
-    vkUnmapMemory(gf3d_vgraphics_get_default_logical_device(), self->screenspace.memory);
-}
-
-
 
 void rendering_pipeline_ui_renderpass(rendering_pipeline_ui_t *self, VkCommandBuffer buffer, Uint32 frame)
 {
@@ -132,8 +79,8 @@ void rendering_pipeline_ui_descriptor_set_init(rendering_pipeline_ui_t *self)
     for (int i = 0; i < gf3d_swapchain_get_swap_image_count(); i++) {
         slog("updating descriptor sets");
         imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-        imageInfo.imageView = ui_texture->textureImageView;
-        imageInfo.sampler = ui_texture->textureSampler;
+        imageInfo.imageView = self->interface_texture->textureImageView;
+        imageInfo.sampler = self->interface_texture->textureSampler;
 
         descriptorWrite[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
         descriptorWrite[0].dstSet = self->descriptorSets[i];
@@ -226,30 +173,14 @@ void rendering_pipeline_graphics_ui_init(rendering_pipeline_ui_t *self)
     }
 }
 
-
-void rendering_pipeline_ui_update_vertex_data(rendering_pipeline_ui_t *self)
+rendering_pipeline_ui_t *rendering_pipeline_ui_init(Texture *interface_texture, uint32_t screen_width, uint32_t screen_height)
 {
-    for (size_t i = 0; i < NUM_SCREEN_COORDINATES; i++) {
-        screen_coordinates[i][0] *= self->screen_width;
-        screen_coordinates[i][1] *= self->screen_height;
-    }
-}
-
-rendering_pipeline_ui_t *rendering_pipeline_ui_init(uint32_t screen_width, uint32_t screen_height)
-{
-
-    if (ui_texture == NULL) {
-        ui_texture = gf3d_texture_load("./images/bs.png");
-    }
 
     rendering_pipeline_ui_t *self = calloc(sizeof(rendering_pipeline_ui_t), 1);
     {
         self->screen_width = gf3d_vgraphics_get_view_extent().width;
         self->screen_height = gf3d_vgraphics_get_view_extent().height;
-
-        //rendering_pipeline_ui_update_vertex_data(self)
-
-        rendering_pipeline_ui_buffer_init(self);
+        self->interface_texture = interface_texture;
 
         rendering_pipeline_graphics_ui_init(self);
 

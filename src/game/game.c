@@ -47,7 +47,7 @@ int main(int argc,char *argv[])
     
     // main game loop
     slog("gf3d main loop begin");
-    //entity_t *ui = entity_manager_make(entity_ui_init, NULL);
+    entity_t *ui = entity_manager_make(entity_ui_init, NULL);
 
     entity_t *world = entity_manager_make(entity_world_init, NULL);
     entity_t *player = entity_manager_make(entity_player_init, NULL);

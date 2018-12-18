@@ -14,10 +14,18 @@ typedef struct
     VkDeviceMemory      textureImageMemory;
     VkImageView         textureImageView;
     VkSampler           textureSampler;
+
+    VkBuffer stagingBuffer;
+    VkDeviceMemory stagingBufferMemory;
+    VkDeviceSize        texturePixelDataSize;
+
+
+    uint32_t width, height;
 }Texture;
 
 
 void gf3d_texture_init(Uint32 max_textures);
+Texture *gf3d_texture_surface_create(SDL_Surface *texture_surface);
 Texture *gf3d_texture_load(char *filename);
 void gf3d_texture_free(Texture *tex);
 

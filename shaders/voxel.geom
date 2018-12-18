@@ -48,13 +48,13 @@ out gl_PerVertex {
 
 
 // Block Top
-vec3 positions_top[] = {
+const vec3 positions_top[] = {
     vec3(FRONT,    TOP,  LEFT),
     vec3(FRONT,    TOP, RIGHT),
     vec3( BACK,    TOP,  LEFT),
     vec3( BACK,    TOP, RIGHT),
 };
-vec2 positions_texture_top[] = {
+const vec2 positions_texture_top[] = {
     vec2(    TOP_LEFT,       TOP_TOP),
     vec2(   TOP_RIGHT,       TOP_TOP),
     vec2(    TOP_LEFT,    TOP_BOTTOM),
@@ -64,7 +64,7 @@ vec2 positions_texture_top[] = {
 // Block Sides
 
 /////////////////// Block Front
-vec3 positions_side_front[] = {
+const vec3 positions_side_front[] = {
     vec3(FRONT,    TOP,  LEFT),
 
     vec3(FRONT, BOTTOM,  LEFT),
@@ -72,7 +72,7 @@ vec3 positions_side_front[] = {
 
     vec3(FRONT, BOTTOM, RIGHT),
 };
-vec2 positions_texture_side_front[] = {
+const vec2 positions_texture_side_front[] = {
     vec2(    SIDE_LEFT,     SIDE_TOP),
 
     vec2(    SIDE_LEFT,    SIDE_BOTTOM),
@@ -83,13 +83,13 @@ vec2 positions_texture_side_front[] = {
 
 
 /////////////////// Block Back
-vec3 positions_side_back[] = {
+const vec3 positions_side_back[] = {
     vec3( BACK,    TOP,  LEFT),
     vec3( BACK,    TOP, RIGHT),
     vec3( BACK, BOTTOM,  LEFT),
     vec3( BACK, BOTTOM, RIGHT),
 };
-vec2 positions_texture_side_back[] = {
+const vec2 positions_texture_side_back[] = {
     vec2(    SIDE_LEFT,     SIDE_TOP),
     vec2(   SIDE_RIGHT,      SIDE_TOP),
     vec2(    SIDE_LEFT,    SIDE_BOTTOM),
@@ -97,14 +97,14 @@ vec2 positions_texture_side_back[] = {
 };
 
 /////////////////// Block Left
-vec3 positions_side_left[] = {
+const vec3 positions_side_left[] = {
     vec3( BACK,    TOP,  LEFT),
     vec3( BACK, BOTTOM,  LEFT),
     vec3(FRONT,    TOP,  LEFT),
     vec3(FRONT, BOTTOM,  LEFT),
 };
 
-vec2 positions_texture_side_left[] = {
+const vec2 positions_texture_side_left[] = {
     vec2(    SIDE_LEFT,     SIDE_TOP),
     vec2(    SIDE_LEFT,    SIDE_BOTTOM),
     vec2(   SIDE_RIGHT,      SIDE_TOP),
@@ -112,13 +112,13 @@ vec2 positions_texture_side_left[] = {
 };
 
 /////////////////// Block Right
-vec3 positions_side_right[] = {
+const vec3 positions_side_right[] = {
     vec3( BACK,    TOP, RIGHT),
     vec3(FRONT,    TOP, RIGHT),
     vec3( BACK, BOTTOM, RIGHT),
     vec3(FRONT, BOTTOM, RIGHT),
 };
-vec2 positions_texture_side_right[] = {
+const vec2 positions_texture_side_right[] = {
     vec2(    SIDE_LEFT,     SIDE_TOP),
     vec2(   SIDE_RIGHT,      SIDE_TOP),
     vec2(    SIDE_LEFT,    SIDE_BOTTOM),
@@ -126,13 +126,13 @@ vec2 positions_texture_side_right[] = {
 };
 
 // Block Bottom
-vec3 positions_bottom[] = {
+const vec3 positions_bottom[] = {
     vec3( BACK, BOTTOM,  LEFT),
     vec3( BACK, BOTTOM, RIGHT),
     vec3(FRONT, BOTTOM,  LEFT),
     vec3(FRONT, BOTTOM, RIGHT),
 };
-vec2 positions_texture_bottom[] = {
+const vec2 positions_texture_bottom[] = {
     vec2(    BOTTOM_LEFT,     BOTTOM_TOP),
     vec2(   BOTTOM_RIGHT,      BOTTOM_TOP),
     vec2(    BOTTOM_LEFT,    BOTTOM_BOTTOM),
@@ -165,7 +165,7 @@ void quad(int instance, vec3 quadCoords[4], vec2 textureCoords[4])
     EndPrimitive();
 }
 
-vec3 positions[][] = {
+const vec3 positions[][] = {
     positions_top,
     positions_side_back,
     positions_side_front,
@@ -174,7 +174,7 @@ vec3 positions[][] = {
     positions_bottom
 };
 
-vec2 positions_textures[][] = {
+const vec2 positions_textures[][] = {
     positions_texture_top,
     positions_texture_side_back,
     positions_texture_side_front,

@@ -2,8 +2,67 @@
 #include <gf3d_vgraphics.h>
 #include "ui.h"
 
-
 rendering_pipeline_ui_t *pipeline_ui;
+
+SDL_Surface *entity_ui_sdl_surface_init(uint32_t width, uint32_t height)
+{
+    Uint32 rmask, gmask, bmask, amask;
+
+    /* SDL interprets each pixel as a 32-bit number, so our masks must depend
+       on the endianness (byte order) of the machine */
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
+    rmask = 0xff000000;
+    gmask = 0x00ff0000;
+    bmask = 0x0000ff00;
+    amask = 0x000000ff;
+#else
+    rmask = 0x000000ff;
+    gmask = 0x0000ff00;
+    bmask = 0x00ff0000;
+    amask = 0xff000000;
+#endif
+
+    return SDL_CreateRGBSurface(
+            0,
+            width, height,
+            32,
+            rmask, gmask, bmask, amask
+    );
+}
+
+SDL_Surface *entity_ui_sdl_init()
+{
+    SDL_Surface *surface = entity_ui_sdl_surface_init(
+            gf3d_vgraphics_get_view_extent().width,
+            gf3d_vgraphics_get_view_extent().height
+    );
+
+
+    // Setup renderer
+    SDL_Renderer *renderer = SDL_CreateSoftwareRenderer(surface);
+
+    // Set everything to clear
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
+    SDL_RenderClear(renderer);
+
+    // Creat a rect at pos ( 50, 50 ) that's 50 pixels wide and 50 pixels high.
+    SDL_Rect r;
+    r.x = 50;
+    r.y = 50;
+    r.w = 50;
+    r.h = 50;
+
+    // Set render color to blue ( rect will be rendered in this color )
+    SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255);
+
+    // Render rect
+    SDL_RenderFillRect(renderer, &r);
+
+    // Render the rect to the screen
+    SDL_RenderPresent(renderer);
+
+    return surface;
+}
 
 void entity_ui_draw(entity_t *entity, const entity_render_pass_t *pass)
 {
@@ -12,8 +71,9 @@ void entity_ui_draw(entity_t *entity, const entity_render_pass_t *pass)
 
 void entity_ui_init(entity_t *entity, void *metadata)
 {
+    Texture *interface_texture = gf3d_texture_surface_create(entity_ui_sdl_init());
     pipeline_ui = rendering_pipeline_ui_init(
-            (uint32_t) windowWidth, (uint32_t) windowHeight
+            interface_texture, (uint32_t) windowWidth, (uint32_t) windowHeight
     );
     entity->draw = entity_ui_draw;
 }

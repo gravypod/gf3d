@@ -2,6 +2,7 @@
 #define GF3D_RENDERNIG_UI_H
 
 #include <gf3d_pipeline.h>
+#include <gf3d_texture.h>
 
 /**
  * Memory used for block data.
@@ -45,10 +46,12 @@ typedef struct
      */
     uint32_t screen_width, screen_height;
 
+    Texture *interface_texture;
+
     rendering_pipeline_ui_screenspace_t screenspace;
 } rendering_pipeline_ui_t;
 
-rendering_pipeline_ui_t *rendering_pipeline_ui_init(uint32_t screen_width, uint32_t screen_height);
+rendering_pipeline_ui_t *rendering_pipeline_ui_init(Texture *interface_texture, uint32_t screen_width, uint32_t screen_height);
 
 void rendering_pipeline_ui_renderpass(rendering_pipeline_ui_t *self, VkCommandBuffer buffer, Uint32 frame);
 

@@ -8,5 +8,9 @@ layout(location = 0) out vec4 outColor;
 
 void main()
 {
-    outColor = texture(texSampler, texture_position);
+    const vec4 color = texture(texSampler, texture_position);
+    if (color.w < 1) {
+        discard;
+    }
+    outColor = color;
 }
