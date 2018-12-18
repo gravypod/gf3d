@@ -217,7 +217,7 @@ Texture *gf3d_texture_load(char *filename)
         return tex;
     }
     surfaceRaw = IMG_Load(filename);
-    if (!surface)
+    if (!surfaceRaw)
     {
         slog("failed to load texture file %s",filename);
         return NULL;
