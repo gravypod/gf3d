@@ -4,6 +4,7 @@
 #include "../entity.h"
 
 extern entity_t *player_entity;
+extern int collected_souls;
 
 /**
  * Initialize an player

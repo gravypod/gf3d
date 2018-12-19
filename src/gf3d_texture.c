@@ -199,13 +199,9 @@ void gf3d_texture_create_sampler(Texture *tex)
     slog("created texture sampler");
 }
 
-void gf3d_texture_copy_staging_buffer_over_image_buffer(Texture *texture, bool already_copied_to)
+void gf3d_texture_copy_staging_buffer_over_image_buffer(Texture *texture)
 {
     VkImageLayout current_layout = VK_IMAGE_LAYOUT_UNDEFINED;
-
-    if (already_copied_to) {
-        current_layout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-    }
 
     gf3d_swapchain_transition_image_layout(
             texture->textureImage,
@@ -264,7 +260,7 @@ bool gf3d_texture_create_image(Texture *texture)
 
     vkBindImageMemory(gf3d_texture.device, texture->textureImage, texture->textureImageMemory, 0);
 
-    gf3d_texture_copy_staging_buffer_over_image_buffer(texture, false);
+    gf3d_texture_copy_staging_buffer_over_image_buffer(texture);
 
     texture->textureImageView = gf3d_vgraphics_create_image_view(texture->textureImage, VK_FORMAT_R8G8B8A8_UNORM);
 
@@ -294,7 +290,7 @@ void gf3d_texture_surface_update(Texture *texture, SDL_Surface *texture_surface)
 
     // Copy texture data into staging buffer
     gf3d_texture_transfer_surface_to_buffer(texture, surface);
-    gf3d_texture_copy_staging_buffer_over_image_buffer(texture, true);
+    gf3d_texture_copy_staging_buffer_over_image_buffer(texture);
 
 
     // Free the surface if there was a conversion

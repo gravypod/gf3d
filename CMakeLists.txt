@@ -7,6 +7,10 @@ include(FindPkgConfig)
 pkg_search_module(SDL2 REQUIRED sdl2)
 pkg_search_module(SDL2IMAGE REQUIRED SDL2_image>=2.0.0)
 
+set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR})
+find_package(SDL2TTF)
+
+
 # This block of CMake compiles all shaders and exports them.
 # This is the syntax of glslangValidator
 #       glslangValidator -V -o voxel.vert.spv voxel.vert
@@ -34,7 +38,7 @@ add_custom_target(
 set(OPEN_SIMPLEX_NOISE_SOURCE libs/open-simplex-math-c/open-simplex-noise.c)
 include_directories(libs/open-simplex-math-c)
 
-set(ENGINE_LIBRARIES m vulkan ${SDL2_LIBRARIES} ${SDL2IMAGE_LIBRARIES} ${CMAKE_SOURCE_DIR}/libs/libsj.a)
+set(ENGINE_LIBRARIES m vulkan ${SDL2_LIBRARIES} ${SDL2IMAGE_LIBRARIES} ${SDL2TTF_LIBRARY} ${CMAKE_SOURCE_DIR}/libs/libsj.a)
 
 set(GAME_SOURCE_FILES
         src/game/game.c
@@ -76,7 +80,7 @@ set(SOURCE_FILES
         src/game/raytrace.c src/game/raytrace.h
         src/game/entity/definitions/ui.c src/game/entity/definitions/ui.h src/game/rendering/ui.c src/game/rendering/ui.h)
 
-include_directories(src/ include libs/include ${SDL2_INCLUDE_DIRS} ${SDL2IMAGE_INCLUDE_DIRS})
+include_directories(src/ include libs/include ${SDL2_INCLUDE_DIRS} ${SDL2IMAGE_INCLUDE_DIRS} ${SDL2TTF_INCLUDE_DIR})
 add_executable(${PROJECT_NAME} ${OPEN_SIMPLEX_NOISE_SOURCE} ${SOURCE_FILES} ${GAME_SOURCE_FILES})
 
 target_link_libraries(${PROJECT_NAME} ${ENGINE_LIBRARIES})
