@@ -12,9 +12,9 @@ pkg_search_module(SDL2IMAGE REQUIRED SDL2_image>=2.0.0)
 #       glslangValidator -V -o voxel.vert.spv voxel.vert
 # and this is generated
 file(GLOB_RECURSE GLSL_SOURCE_FILES
-        "${CMAKE_SOURCE_DIR}/shaders/*.frag"
-        "${CMAKE_SOURCE_DIR}/shaders/*.geom"
-        "${CMAKE_SOURCE_DIR}/shaders/*.vert"
+        "${CMAKE_SOURCE_DIR}/shaders/**.frag"
+        "${CMAKE_SOURCE_DIR}/shaders/**.geom"
+        "${CMAKE_SOURCE_DIR}/shaders/**.vert"
         )
 foreach(GLSL ${GLSL_SOURCE_FILES})
     get_filename_component(FILE_NAME ${GLSL} NAME)
@@ -73,7 +73,8 @@ set(SOURCE_FILES
         src/game/block.c src/game/block.h src/game/collisions/world.c
         src/game/collisions/world.h src/game/game.h
         src/game/entity/definitions/badguy.c src/game/entity/definitions/badguy.h
-        src/game/raytrace.c src/game/raytrace.h)
+        src/game/raytrace.c src/game/raytrace.h
+        src/game/entity/definitions/ui.c src/game/entity/definitions/ui.h src/game/rendering/ui.c src/game/rendering/ui.h)
 
 include_directories(src/ include libs/include ${SDL2_INCLUDE_DIRS} ${SDL2IMAGE_INCLUDE_DIRS})
 add_executable(${PROJECT_NAME} ${OPEN_SIMPLEX_NOISE_SOURCE} ${SOURCE_FILES} ${GAME_SOURCE_FILES})
