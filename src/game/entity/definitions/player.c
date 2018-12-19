@@ -6,9 +6,12 @@
 #include <game/entity/manager.h>
 #include "player.h"
 #include "world.h"
+#include "agumon.h"
 
 entity_t *player_entity;
+entity_t *spawned_soul = NULL;
 gf3d_camera *camera;
+int collected_souls = 0;
 
 const float entity_player_speed_when_clicking(const entity_t *const entity, const bool positive, const bool negative)
 {
@@ -72,8 +75,16 @@ void entity_player_attack_entities(entity_t *self, float player_attack_distance,
         return;
     }
 
+    if (spawned_soul) {
+        if (spawned_soul == contacted || spawned_soul->id == contacted->id)
+            spawned_soul = NULL;
+    }
+
     printf("Killed!!! --- %zu\n", contacted->id);
     entity_manager_release(contacted);
+
+    // track souls
+    collected_souls += 1;
 }
 
 void entity_player_position_movement_calculate(const Uint8 *key_states, entity_t *const entity)
@@ -141,11 +152,12 @@ void entity_player_init(entity_t *entity, void *metadata)
 void entity_player_update(entity_t *entity, void *metadata)
 {
     static const size_t  num_mining_cooldown = 150;
-    static size_t mining_cooldown = num_mining_cooldown;
+    static size_t mining_cooldown = 150;
 
     const Uint8 *key_states = SDL_GetKeyboardState(NULL);
     const bool is_player_attacking = key_states[SDL_SCANCODE_SPACE];
     const bool is_player_mining = key_states[SDL_SCANCODE_X];
+    const bool is_player_spawning = key_states[SDL_SCANCODE_R];
 
     entity_player_position_movement_calculate(key_states, entity);
     entity_player_rotation_movement_calculate(entity);
@@ -156,6 +168,14 @@ void entity_player_update(entity_t *entity, void *metadata)
 
     if (is_player_attacking) {
         entity_player_attack_entities(entity, max_player_arm_distance, entity->position, camera->front);
+    }
+
+    if (is_player_spawning && collected_souls > 0 && (spawned_soul == NULL || !spawned_soul->allocated)) {
+        collected_souls = 0;
+        spawned_soul = entity_manager_make(entity_agumon_init, NULL);
+        spawned_soul->position[0] = entity->position[0];
+        spawned_soul->position[1] = entity->position[1];
+        spawned_soul->position[2] = entity->position[2];
     }
 
     if (mining_cooldown >= num_mining_cooldown) {
