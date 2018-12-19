@@ -1,6 +1,11 @@
 # gf3d
 a collection of utlitity functions designed to facilitate creating 3D games with ~~OpenGL~~ Vulkan and SDL2
 
+
+# Added Libraries
+
+1. You need SDL2 TTF installed as well as it's headers.
+
 # Fonts
 
 1. ComicNeue-Regular.otf: http://comicneue.com/
